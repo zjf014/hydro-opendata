@@ -1,6 +1,6 @@
 # 数据目录
 
-归纳总结了wis中外部数据的数据来源、空间范围和时间范围等信息，目前包括：
+部分开放数据的数据来源、空间范围和时间范围等信息，目前包括：
 
 - [Digital Elevation/Surface Model](#digital-elevation/surface-model)
 - [ECMWF Reanalysis v5 - Land](#ecmwf-reanalysis-v5)
