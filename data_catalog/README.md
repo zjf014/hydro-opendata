@@ -1,8 +1,8 @@
-# wis外部数据目录
+# 数据目录
 
 归纳总结了wis中外部数据的数据来源、空间范围和时间范围等信息，目前支持：
 - 大部分数据已通过ftp服务器存储
-- 将支持在jupyter平台上通过wis-ftpapi直接读取
+- 将支持在jupyter平台上通过wis-ftpapi或s3api直接读取
 
 ## 数据目录
 - [Digital Elevation/Surface Model](#digital-elevation/surface-model)
