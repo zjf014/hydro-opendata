@@ -13,7 +13,7 @@ pip install wis-downloader
 ### 通过源代码
 
 ```shell
-git clone git://github.com/zjf014/wis-downloader
+git clone http://gitlab.waterism.com:8888/zhujianfeng/wis-downloader.git
 ```
 
 ## 功能
