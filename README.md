@@ -16,10 +16,10 @@
 
 归纳总结了wis中外部数据的数据来源、空间范围和时间范围等信息，目前包括：
 
-- [Digital Elevation/Surface Model](./data_catalog/README.md#digital-elevation/surface-model)
-- [ECMWF Reanalysis v5 - Land](#ecmwf-reanalysis-v5)
-- [The Global Forecast System](#the-global-forecast-system)
-- [Global Precipitation Measurement](#global-precipitation-measurement)
+- [Digital Elevation/Surface Model](./data_catalog/README.md#digital-elevationsurface-model)
+- [ECMWF Reanalysis v5 - Land](./data_catalog/README.md#ecmwf-reanalysis-v5)
+- [The Global Forecast System](./data_catalog/README.md#the-global-forecast-system)
+- [Global Precipitation Measurement](./data_catalog/README.md#global-precipitation-measurement)
 
 
 ## Credits
