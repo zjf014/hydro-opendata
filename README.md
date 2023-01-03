@@ -5,11 +5,11 @@
 [![image](https://img.shields.io/conda/vn/conda-forge/hydro-opendata.svg)](https://anaconda.org/conda-forge/hydro-opendata)
 
 
-**Python Boilerplate contains all the boilerplate you need to create a Python package.**
+**可用于水文学科学计算的开放数据的获取、管理和使用路径及方法。**
 
 
 -   Free software: MIT license
--   Documentation: https://zjf014.github.io/hydro-opendata
+-   Documentation: 
     
 
 ## [数据目录](./data_catalog/)

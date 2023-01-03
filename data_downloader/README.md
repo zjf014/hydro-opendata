@@ -46,5 +46,5 @@ alos_dem.download(save_dir='.')
 ```python
 from wis_downloader import ncep_gfs
 # 通过日期、时间、预测序列及范围获取gfs数据
-get_gfs_from_ncep(date='20220101',creation_time='06',forecast_time=120,bbox=[115,38,136,54])
+ncep_gfs.get_gfs_from_ncep(date='20220101',creation_time='06',forecast_time=120,bbox=[115,38,136,54])
 ```
