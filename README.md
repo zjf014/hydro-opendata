@@ -14,15 +14,16 @@
 
 ## [数据目录](./data_catalog/)
 
-归纳总结了wis中外部数据的数据来源、空间范围和时间范围等信息，目前包括：
+部分开放数据的数据来源、空间范围和时间范围等信息，目前包括：
 
 - [Digital Elevation/Surface Model](./data_catalog/README.md#digital-elevationsurface-model)
 - [ECMWF Reanalysis v5 - Land](./data_catalog/README.md#ecmwf-reanalysis-v5)
 - [The Global Forecast System](./data_catalog/README.md#the-global-forecast-system)
 - [Global Precipitation Measurement](./data_catalog/README.md#global-precipitation-measurement)
 
-## [数据下载]()
+## [数据下载](./data_downloader/)
 
+提供通用下载器和部分数据的下载功能。
 
 ## Credits
 
