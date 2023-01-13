@@ -31,7 +31,7 @@ from wis_downloader import downloader
 downloader.download_sigletasking(url,file_name)
 ```
 
-- [获取alos30数据](./examples/alos_dem.ipynb)
+- [下载alos30数据](./examples/alos_dem.ipynb)
 
 ```python
 from wis_downloader import alos_dem
@@ -41,10 +41,10 @@ hrefs=alos_dem.search(bbox=[121,38,121.5,39])
 alos_dem.download(save_dir='.')
 ```
 
-- 获取nfs数据
+- 下载nfs数据
 
 ```python
 from wis_downloader import ncep_gfs
-# 通过日期、时间、预测序列及范围获取gfs数据
+# 通过日期、时间、预测序列及范围下载gfs数据
 ncep_gfs.get_gfs_from_ncep(date='20220101',creation_time='06',forecast_time=120,bbox=[115,38,136,54])
 ```
