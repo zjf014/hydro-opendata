@@ -4,13 +4,13 @@
 
 ## 安装
 
-### 通过pip
+- 通过pip
 
 ```shell
 pip install wis-downloader
 ```
 
-### 通过源代码
+- 通过源代码
 
 ```shell
 git clone http://gitlab.waterism.com:8888/zhujianfeng/wis-downloader.git

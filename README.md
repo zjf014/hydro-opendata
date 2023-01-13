@@ -10,9 +10,10 @@
 
 -   Free software: MIT license
 -   Documentation: 
-    
 
-## [数据目录](./data_catalog/)
+## 内容    
+
+### [数据目录](./data_catalog/)
 
 部分开放数据的数据来源、空间范围和时间范围等信息，目前包括：
 
@@ -21,9 +22,13 @@
 - [The Global Forecast System](./data_catalog/README.md#the-global-forecast-system)
 - [Global Precipitation Measurement](./data_catalog/README.md#global-precipitation-measurement)
 
-## [数据下载](./data_downloader/)
+### [数据下载](./data_downloader/)
 
 提供通用下载器和部分数据的下载功能。
+
+### [数据获取](./data_api/)
+
+获取minio中的grid数据
 
 ## Credits
 
