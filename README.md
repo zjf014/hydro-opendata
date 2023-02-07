@@ -15,21 +15,42 @@
 
 ### [数据目录](./data_catalog/)
 
-部分开放数据的数据来源、空间范围和时间范围等信息，目前包括：
-
-- [Digital Elevation/Surface Model](./data_catalog/README.md#digital-elevationsurface-model)
-- [ECMWF Reanalysis v5 - Land](./data_catalog/README.md#ecmwf-reanalysis-v5)
-- [The Global Forecast System](./data_catalog/README.md#the-global-forecast-system)
-- [Global Precipitation Measurement](./data_catalog/README.md#global-precipitation-measurement)
+- [Awesome-DEM](https://github.com/DahnJ/Awesome-DEM)
+- [Satpy](https://github.com/pytroll/satpy)
 
 ### [数据下载](./data_downloader/)
 
-提供通用下载器和部分数据的下载功能。
+
+- [bmi_era5](https://github.com/gantian127/bmi_era5)
+- [Herbie](https://github.com/blaylockbk/Herbie)
+- [MultiEarth](https://github.com/bair-climate-initiative/multiearth)
 
 ### [数据获取](./data_api/)
 
-获取minio中的grid数据
+- [minio](https://github.com/minio/minio)
+- [kerchunk](https://github.com/fsspec/kerchunk)
+- [Pangeo](https://github.com/pangeo-data)
+- [Pangeo Forge](https://github.com/pangeo-forge)
+- [Intake](https://github.com/intake)
+- [H2Ox](https://github.com/H2Oxford)
+- [pystac](https://github.com/stac-utils/pystac)
+- [StackSTAC](https://github.com/gjoseph92/stackstac)
 
-## Credits
+### [数据处理](./data_api/)
 
-This package was created with [Cookiecutter](https://github.com/cookiecutter/cookiecutter) and the [giswqs/pypackage](https://github.com/giswqs/pypackage) project template.
+- [PyKrige](https://github.com/GeoStat-Framework/PyKrige)
+- [WhiteboxTools](https://github.com/jblindsay/whitebox-tools)
+- [geemap](https://github.com/giswqs/geemap)
+- [Turfpy](https://github.com/omanges/turfpy)
+- [plotting and creation of masks of spatial regions](https://github.com/regionmask/regionmask)
+- [Rapid Watershed Delineation using an Automatic Outlet Relocation Algorithm](https://github.com/xiejx5/watershed_delineation)
+- [High-performance watershed delineation algorithm for GPU using CUDA and OpenMP](https://github.com/bkotyra/watershed_delineation_gpu)
+
+### [可视化]
+
+- [leafmap](https://github.com/giswqs/leafmap)
+
+
+## 其它
+
+- [hydro-GIS资源目录](./hydro_gis/)
