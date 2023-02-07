@@ -46,7 +46,7 @@
 - [Rapid Watershed Delineation using an Automatic Outlet Relocation Algorithm](https://github.com/xiejx5/watershed_delineation)
 - [High-performance watershed delineation algorithm for GPU using CUDA and OpenMP](https://github.com/bkotyra/watershed_delineation_gpu)
 
-### [可视化]
+### 可视化
 
 - [leafmap](https://github.com/giswqs/leafmap)
 
