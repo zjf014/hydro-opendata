@@ -40,7 +40,8 @@
 目前，数据下载后上传到[MinIO](https://github.com/minio/minio)服务器中。
 
 ```
-MinIO提供高性能、与S3兼容的对象存储系统。可以使用Minio SDK，Minio Client，AWS SDK和 AWS CLI访问Minio服务器。
+MinIO提供高性能、与S3兼容的对象存储系统。
+可以使用Minio SDK，Minio Client，AWS SDK和 AWS CLI访问Minio服务器。
 ```
 
 此阶段，数据在[MinIO](https://github.com/minio/minio)仍然以文件的形式存储。
@@ -59,7 +60,9 @@ MinIO提供高性能、与S3兼容的对象存储系统。可以使用Minio SDK�
 使用[kerchunk](https://fsspec.github.io/kerchunk/)
 
 ```
-简单说，kerchunk能够更高效地读取本地或s3（如minio）上的部分格式（如NetCDF/HDF5, GRIB2, TIFF, …）的数据（解决问题1），并且能够跨文件创建虚拟数据集（解决问题2）。
+简单说，kerchunk能够更高效地读取本地或s3（如minio）上的数据，
+支持如NetCDF/HDF5, GRIB2, TIFF等部分格式的高效读取（解决问题1），
+并且能够跨文件创建虚拟数据集（解决问题2）。
 ```
 - [kerchunk](https://fsspec.github.io/kerchunk/)是通过[写JSON文件](./docs/examples/era5/step3%3A%20kerchunk.ipynb)的形式完成上述功能的。
 
@@ -76,7 +79,12 @@ start_time = np.datetime64('2021-01-01T01:00:00.000000000')
 end_time = np.datetime64('2021-01-31T00:00:00.000000000')
 bbox = (121,38,122,40)
 
-ds = era5.open(['Total precipitation','10 metre U wind component'],start_time=start_time,end_time=end_time,bbox=bbox)
+ds = era5.open(
+    ['Total precipitation','10 metre U wind component'],
+    start_time=start_time,
+    end_time=end_time,
+    bbox=bbox
+)
 ```
 
 在[wis-s3api](http://gitlab.waterism.com:8888/zhujianfeng/wis-s3api)使用[xarray](https://github.com/pydata/xarray)等直接读取的数据量较大时容易造成内存溢出，建议分块读取, 例如：
