@@ -103,19 +103,22 @@ ds = xr.open_dataset(
 
 ## 数据处理
 
+[wis-processor](http://gitlab.waterism.com:8888/zhujianfeng/wis-processor)提供了以下功能：
+
 - 克里金插值
-[PyKrige](https://github.com/GeoStat-Framework/PyKrige)
-- [WhiteboxTools](https://github.com/jblindsay/whitebox-tools)
-- [geemap](https://github.com/giswqs/geemap)
-- [Turfpy](https://github.com/omanges/turfpy)
-- [plotting and creation of masks of spatial regions](https://github.com/regionmask/regionmask)
-- [Rapid Watershed Delineation using an Automatic Outlet Relocation Algorithm](https://github.com/xiejx5/watershed_delineation)
-- [High-performance watershed delineation algorithm for GPU using CUDA and OpenMP](https://github.com/bkotyra/watershed_delineation_gpu)
+    - [PyKrige](https://github.com/GeoStat-Framework/PyKrige)
+- 泰森多边形
+    - [WhiteboxTools.VoronoiDiagram](https://whiteboxgeo.com/manual/wbt_book/available_tools/gis_analysis.html?highlight=voro#voronoidiagram)
+    - [scipy.spatial.Voronoi](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.Voronoi.html)
+- 流域划分
+    - [Rapid Watershed Delineation using an Automatic Outlet Relocation Algorithm](https://github.com/xiejx5/watershed_delineation)
+    - [High-performance watershed delineation algorithm for GPU using CUDA and OpenMP](https://github.com/bkotyra/watershed_delineation_gpu)
+- 流域平均
+    - [plotting and creation of masks of spatial regions](https://github.com/regionmask/regionmask)
 
 ## 可视化
 
-- [leafmap](https://github.com/giswqs/leafmap)
-
+在Jupyter平台中使用[leafmap](https://github.com/giswqs/leafmap)展示地理空间数据。
 
 ## 其它
 
