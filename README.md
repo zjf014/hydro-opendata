@@ -109,6 +109,11 @@ ds = xr.open_dataset(
     )
 ```
 
+### 遥感影像获取
+
+对于遥感影像数据，数据量大且多，无法逐一下载后读取。可以采用[stac+stackstac](./data_api/examples/RSImages.ipynb)直接将Sentinel或Landsat数据读入到xarray的dataset中。
+
+
 ## 数据处理
 
 [wis-processor](http://gitlab.waterism.com:8888/zhujianfeng/wis-processor)提供了以下功能：
