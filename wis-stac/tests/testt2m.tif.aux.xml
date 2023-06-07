@@ -1,0 +1,12 @@
+<PAMDataset>
+  <PAMRasterBand band="1">
+    <Description>2 metre temperature</Description>
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">263.68411254883</MDI>
+      <MDI key="STATISTICS_MEAN">260.87228676952</MDI>
+      <MDI key="STATISTICS_MINIMUM">254.93835449219</MDI>
+      <MDI key="STATISTICS_STDDEV">1.6542026508681</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
