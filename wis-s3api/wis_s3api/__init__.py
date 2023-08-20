@@ -1,18 +1,15 @@
 """Top-level package for wis-s3api."""
+import pathlib
+import os
+
 from .wis_s3api import paras
 
 __author__ = """Jianfeng Zhu"""
 __email__ = 'zjf014@gmail.com'
 __version__ = '0.0.10'
 
-# endpoint_url = 'http://minio.waterism.com:9000'
-# access_key = 'JKhbLNL0jNKqbjn4'
-# secret_key = '0RDubDRBIrC2WOHAP4nHtYP28TXtVj8H'
-# bucket_path = 'test/geodata/'
 
-import os
-
-home_path = os.environ['HOME']
+home_path = str(pathlib.Path.home())
 
 if os.path.exists(os.path.join(home_path,'.wiss3api')):
     pass
