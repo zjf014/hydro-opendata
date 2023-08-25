@@ -1,4 +1,3 @@
-import wis_s3api as main
 import os
 import numpy as np
 import s3fs
@@ -7,17 +6,10 @@ import calendar
 from datetime import date
 import json
 
-endpoint_url = main.paras['endpoint_url']
-access_key = main.paras['access_key']
-secret_key = main.paras['secret_key']
-bucket_path = main.paras['bucket_path']
+from ..common import minio_paras, fs, ro
+from ..utils import regen_box
 
-fs = s3fs.S3FileSystem(
-    client_kwargs={"endpoint_url": endpoint_url}, 
-    key=access_key, 
-    secret=secret_key
-)
-
+bucket_name = minio_paras['bucket_name']
 
 # 后期从minio读取
 start = np.datetime64("2016-07-10")
@@ -49,33 +41,16 @@ variables = {
     '10v':'v_component_of_wind_10m_above_ground',
 }
 
-def _bbox(bbox, resolution, offset):
-    
-    lx = bbox[0]
-    rx = bbox[2]   
-    LLON = round(int(lx) + resolution * int((lx - int(lx)) / resolution + 0.5) + offset * (int(lx * 10) / 10 + offset - lx) / abs(int(lx * 10) // 10 + offset - lx + 0.0000001), 3)
-    RLON = round(int(rx) + resolution * int((rx - int(rx)) / resolution + 0.5) - offset * (int(rx * 10) / 10 + offset - rx) / abs(int(rx * 10) // 10 + offset - rx + 0.0000001), 3)
-    
-    by = bbox[1]
-    ty = bbox[3]
-    BLAT = round(int(by) + resolution * int((by - int(by)) / resolution + 0.5) + offset * (int(by * 10) / 10 + offset - by) / abs(int(by * 10) // 10 + offset - by + 0.0000001), 3)
-    TLAT = round(int(ty) + resolution * int((ty - int(ty)) / resolution + 0.5) - offset * (int(ty * 10) / 10 + offset - ty) / abs(int(ty * 10) // 10 + offset - ty + 0.0000001), 3)
-    
-    # print(LLON,BLAT,RLON,TLAT)
-    
-    return LLON,BLAT,RLON,TLAT
-
-
 def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', bbox=box, time_chunks=24):
     
     if data_variable in variables.keys():
         short_name = data_variable
         full_name = variables[data_variable]
         
-        with fs.open('test/geodata/gfs/gfs.json') as f:
+        with fs.open(os.path.join(bucket_name, 'geodata/gfs/gfs.json')) as f:
             cont = json.load(f)
-            start = np.datetime64(cont[short_name]['start'])
-            end = np.datetime64(cont[short_name]['end'])
+            start = np.datetime64(cont[short_name][0]['start'])
+            end = np.datetime64(cont[short_name][-1]['end'])
 
         
         if creation_date < start or creation_date > end:
@@ -91,9 +66,9 @@ def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), 
         day = str(creation_date.astype('object').day).zfill(2)
 
         if creation_date < change:
-            json_url = 's3://' + bucket_path + f'gfs/gfs_history/{year}/{month}/{day}/gfs{year}{month}{day}.t{creation_time}z.0p25.json'
+            json_url = os.path.join('s3://' + bucket_name , f'geodata/gfs/gfs_history/{year}/{month}/{day}/gfs{year}{month}{day}.t{creation_time}z.0p25.json')
         else:
-            json_url = 's3://' + bucket_path + f'gfs/{short_name}/{year}/{month}/{day}/gfs{year}{month}{day}.t{creation_time}z.0p25.json'
+            json_url = os.path.join('s3://' + bucket_name , f'geodata/gfs/{short_name}/{year}/{month}/{day}/gfs{year}{month}{day}.t{creation_time}z.0p25.json')
         
         chunks = {"valid_time": time_chunks}
         ds = xr.open_dataset(
@@ -105,10 +80,7 @@ def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), 
                 "storage_options": {
                     "fo": fs.open(json_url), 
                     "remote_protocol": "s3",
-                    "remote_options": {
-                        'client_kwargs': {'endpoint_url': endpoint_url}, 
-                        'key': access_key, 
-                        'secret': secret_key}
+                    "remote_options": ro
                 }
             }      
         )
@@ -120,7 +92,7 @@ def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), 
         ds = ds.rename({"longitude": "lon", "latitude": "lat"})
         # ds = ds.transpose('time','valid_time','lon','lat')
 
-        bbox = _bbox(bbox, 0.25, 0)
+        bbox = regen_box(bbox, 0.25, 0)
 
         if bbox[0] < box[0]:
             left = box[0]
@@ -159,7 +131,7 @@ def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), crea
 
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
-    bbox = _bbox((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
 
     ds = open_dataset(data_variable, creation_date, creation_time, bbox, time_chunks)
     

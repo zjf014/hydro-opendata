@@ -1,0 +1,11 @@
+s3fs==2022.05
+kerchunk
+xarray
+zarr
+dask
+cfgrib
+eccodes
+netCDF4
+geopandas
+requests
+tqdm

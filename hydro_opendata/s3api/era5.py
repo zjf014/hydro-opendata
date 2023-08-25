@@ -1,19 +1,11 @@
-import wis_s3api as main
+from ..common import minio_paras, fs, ro
+from ..utils import regen_box
 import os
 import s3fs
 import numpy as np
 import xarray as xr
 
-endpoint_url = main.paras['endpoint_url']
-access_key = main.paras['access_key']
-secret_key = main.paras['secret_key']
-bucket_path = main.paras['bucket_path']
-
-fs = s3fs.S3FileSystem(
-    client_kwargs={"endpoint_url": endpoint_url}, 
-    key=access_key, 
-    secret=secret_key
-)
+bucket_name = minio_paras['bucket_name']
 
 start = np.datetime64('2015-01-01T00:00:00.000000000')
 end = np.datetime64('2021-12-31T23:00:00.000000000')
@@ -123,22 +115,6 @@ accumulated = [
     # 'Volumetric soil water layer 4'
 ]
 
-def _bbox(bbox, resolution, offset):
-    
-    lx = bbox[0]
-    rx = bbox[2]
-    LLON = round(int(lx) + resolution * int((lx - int(lx)) / resolution + 0.5) + offset * (int(lx * 10) / 10 + offset - lx) / abs(int(lx * 10) // 10 + offset - lx + 0.0000001), 3)
-    RLON = round(int(rx) + resolution * int((rx - int(rx)) / resolution + 0.5) - offset * (int(rx * 10) / 10 + offset - rx) / abs(int(rx * 10) // 10 + offset - rx + 0.0000001), 3)
-    
-    by = bbox[1]
-    ty = bbox[3]
-    BLAT = round(int(by) + resolution * int((by - int(by)) / resolution + 0.5) + offset * (int(by * 10) / 10 + offset - by) / abs(int(by * 10) // 10 + offset - by + 0.0000001), 3)
-    TLAT = round(int(ty) + resolution * int((ty - int(ty)) / resolution + 0.5) - offset * (int(ty * 10) / 10 + offset - ty) / abs(int(ty * 10) // 10 + offset - ty + 0.0000001), 3)
-    
-    # print(LLON,BLAT,RLON,TLAT)
-    
-    return LLON,BLAT,RLON,TLAT
-
 
 def open_dataset(data_variables=variables, start_time=start, end_time=end, bbox=box, time_chunks=24):
 
@@ -150,12 +126,9 @@ def open_dataset(data_variables=variables, start_time=start, end_time=end, bbox=
         backend_kwargs={
             "consolidated": False,
             "storage_options": {
-                "fo": fs.open('s3://' + bucket_path + 'era5_land/era5_land_.json'), 
+                "fo": fs.open(os.path.join('s3://' + bucket_name, 'geodata/era5_land/era5_land_.json')), 
                 "remote_protocol": "s3",
-                "remote_options": {
-                    'client_kwargs': {'endpoint_url': endpoint_url}, 
-                    'key': access_key, 
-                    'secret': secret_key}
+                "remote_options": ro
             }
         }      
     )
@@ -173,7 +146,7 @@ def open_dataset(data_variables=variables, start_time=start, end_time=end, bbox=
     times = slice(start_time, end_time)
     ds = ds.sel(time=times)
     
-    bbox = _bbox(bbox, 0.1, 0)
+    bbox = regen_box(bbox, 0.1, 0)
     
     if bbox[0] < box[0]:
         left = box[0]
@@ -210,7 +183,7 @@ def from_shp(data_variables=variables, start_time=start, end_time=end, shp=None,
 
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
-    bbox = _bbox((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
 
     ds = open_dataset(data_variables, start_time, end_time, bbox, time_chunks)
     
@@ -290,7 +263,7 @@ def to_netcdf(data_variables=variables, start_time=start, end_time=end, shp=None
     
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
-    bbox = _bbox((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
     
     if resolution == 'hourly':
         
