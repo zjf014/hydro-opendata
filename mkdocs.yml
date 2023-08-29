@@ -7,13 +7,7 @@ repo_url: https://github.com/zjf014/hydro-opendata
 nav:
     - Home: index.md
     - Installation: installation.md
-    - Downloader: downloader.md
-    - Processor: processor.md
-    - Stac: stac.md
-    - S3api: s3api.md
-    - GISTools: gistools.md
-    - FAQ: faq.md
-    - Changelog: changelog.md
+
 
 theme:
     name: material
