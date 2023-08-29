@@ -68,45 +68,6 @@
 
 数据在MinIO中经过上述写块处理后，即可跨文件读取。只需要提供数据的类别、时间范围和空间范围等参数即可读取数据。
 
-以[ERA5-Land](./data_catalog/README.md#ecmwf-reanalysis-v5)数据为例，[wis-s3api](./data_api/)提供了直接从MinIO读取数据的接口：
-```python
-from wis_s3api import era5
-import numpy as np
-
-start_time = np.datetime64('2021-01-01T01:00:00.000000000')
-end_time = np.datetime64('2021-01-31T00:00:00.000000000')
-bbox = (121,38,122,40)
-
-ds = era5.open(
-    ['Total precipitation','10 metre U wind component'],
-    start_time=start_time,
-    end_time=end_time,
-    bbox=bbox
-)
-```
-
-在[wis-s3api](http://gitlab.waterism.com:8888/zhujianfeng/wis-s3api)使用[xarray](https://github.com/pydata/xarray)等直接读取的数据量较大时容易造成内存溢出，建议分块读取, 例如：
-```python
-import xarray as xr
-
-ds = xr.open_dataset(
-        "reference://", 
-        engine="zarr", 
-        chunks=chunks,
-        backend_kwargs={
-            "consolidated": False,
-            "storage_options": {
-                "fo": fs.open('s3://' + bucket_path + 'era5_land/era5_land.json'), 
-                "remote_protocol": "s3",
-                "remote_options": {
-                    'client_kwargs': {'endpoint_url': endpoint_url}, 
-                    'key': access_key, 
-                    'secret': secret_key}
-            }
-        }      
-    )
-```
-
 对于遥感影像数据，数据量大且多，无法逐一下载后读取。可以采用[stac+stackstac](./data_api/examples/RSImages.ipynb)直接将Sentinel或Landsat数据读入到xarray的dataset中。
 
 
