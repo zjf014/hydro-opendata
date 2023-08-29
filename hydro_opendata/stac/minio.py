@@ -1,3 +1,11 @@
+'''
+该模块用于获取minio服务器中的数据列表，包括：
+
+- `Era5_land`
+- `GPM_IMERG_Early`
+- `GFS_atmos`
+'''
+
 from ..common import minio_paras, fs
 import os
 import numpy as np
@@ -8,9 +16,26 @@ import json
 bucket_name = minio_paras['bucket_name']
 
 class Era5_land():
+    '''
+    用于获取era5-land的数据源信息，并搜索minio服务器中的数据范围
+    
+    Attributes:
+        collection_id (str): 数据集名称
+        datasources (str): 数据源
+        description (str): 数据源链接
+        spatialresolution (str): 空间分辨率
+        temporalresolution (str): 时间分辨率
+        
+        starttime (str): minio服务器中数据起始时间
+        endtime (str): minio服务器中数据结束时间
+        bbox (str): minio服务器中数据空间范围
+        
+    Method:
+        search(aoi, starttime, endtime): 搜索minio服务器中的数据范围
+    '''
     
     def __init__(self):
-
+        
         self.collection_id = 'era5-land'
         self.datasources = 'ECMWF'
         self.description = 'https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview'
@@ -23,6 +48,17 @@ class Era5_land():
         self.bbox = (115, 38, 136, 54)
 
     def search(self, aoi, starttime=None, endtime=None):
+        '''
+        查询并获取数据清单
+
+        Args:
+            aoi (GeoDataFrame): 矢量数据范围
+            strttime (datatime64): 查询的起始时间
+            endtime (datatime64): 查询的终止时间
+
+        Returns:
+            datalist (GeoDataFrame): 符合条件的数据清单
+        '''
         
         if starttime is None:
             starttime = self.starttime
@@ -55,7 +91,24 @@ class Era5_land():
         
 
 class GPM_IMERG_Early():
-
+    '''
+    用于获取gpm的数据源信息，并搜索minio服务器中的数据范围
+    
+    Attributes:
+        collection_id (str): 数据集名称
+        datasources (str): 数据源
+        description (str): 数据源链接
+        spatialresolution (str): 空间分辨率
+        temporalresolution (str): 时间分辨率
+        
+        starttime (str): minio服务器中数据起始时间
+        endtime (str): minio服务器中数据结束时间
+        bbox (str): minio服务器中数据空间范围
+        
+    Method:
+        search(aoi, starttime, endtime): 搜索minio服务器中的数据范围
+    '''
+    
     def __init__(self):
         self.collection_id = 'gpm-imerg-early'
         self.datasources = 'NASA & JAXA'
@@ -70,6 +123,17 @@ class GPM_IMERG_Early():
             self.bbox = gpm['bbox']
 
     def search(self, aoi, starttime=None, endtime=None):
+        '''
+        查询并获取数据清单
+
+        Args:
+            aoi (GeoDataFrame): 矢量数据范围
+            strttime (datatime64): 查询的起始时间
+            endtime (datatime64): 查询的终止时间
+
+        Returns:
+            datalist (GeoDataFrame): 符合条件的数据清单
+        '''
         
         if starttime is None:
             starttime = self.starttime
@@ -101,7 +165,23 @@ class GPM_IMERG_Early():
             return None
         
 class GFS_atmos():
-
+    '''
+    用于获取gfs的数据源信息，并搜索minio服务器中的数据范围
+    
+    Attributes:
+        collection_id (str): 数据集名称
+        datasources (str): 数据源
+        description (str): 数据源链接
+        spatialresolution (str): 空间分辨率
+        temporalresolution (str): 时间分辨率
+        
+        starttime (str): minio服务器中数据起始时间
+        endtime (str): minio服务器中数据结束时间
+        
+    Method:
+        search(aoi, starttime, endtime): 搜索minio服务器中的数据范围
+    '''
+    
     def __init__(self, variable='tp'):
         self.variable = variable
         self.collection_id = f'gfs_atmos.{variable}'
@@ -117,6 +197,17 @@ class GFS_atmos():
             # self.bbox = gpm['bbox']
 
     def search(self, aoi, starttime=None, endtime=None):
+        '''
+        查询并获取数据清单
+
+        Args:
+            aoi (GeoDataFrame): 矢量数据范围
+            strttime (datatime64): 查询的起始时间
+            endtime (datatime64): 查询的终止时间
+
+        Returns:
+            datalist (GeoDataFrame): 符合条件的数据清单
+        '''
         
         if starttime is None:
             starttime = self.starttime

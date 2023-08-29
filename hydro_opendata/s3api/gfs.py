@@ -1,3 +1,11 @@
+'''
+该模块用于从minio中读取gfs数据，主要方法包括：
+
+- `open_dataset` - 普通读取数据方法
+- `from_shp` - 通过已有矢量范围读取数据方法
+- `from_aoi` - 通过已有GeoDataFrame范围读取数据方法
+'''
+
 import os
 import numpy as np
 import s3fs
@@ -42,6 +50,19 @@ variables = {
 }
 
 def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', bbox=box, time_chunks=24):
+    '''
+    从minio服务器读取gfs数据
+
+    Args:
+        data_variables (str): 数据变量，目前只支持tp，即降雨
+        creation_date (datetime64): 创建日期
+        creation_time (datetime64): 创建时间，即00\06\12\18之一
+        bbox (list|tuple): 四至范围
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
     
     if data_variable in variables.keys():
         short_name = data_variable
@@ -128,7 +149,20 @@ def open_dataset(data_variable='tp', creation_date=np.datetime64("2022-09-01"), 
 import geopandas as gpd
 
 def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', shp=None, time_chunks=24):
+    '''
+    通过已有的矢量数据范围从minio服务器读取gfs数据
 
+    Args:
+        data_variables (str): 数据变量，目前只支持tp，即降雨
+        creation_date (datetime64): 创建日期
+        creation_time (datetime64): 创建时间，即00\06\12\18之一
+        shp (str): 矢量数据路径
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
     bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
@@ -137,6 +171,26 @@ def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), crea
     
     return ds
 
+def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', aoi:gpd.GeoDataFrame=None, time_chunks=24):
+    '''
+    通过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gfs数据
+
+    Args:
+        data_variables (str): 数据变量，目前只支持tp，即降雨
+        creation_date (datetime64): 创建日期
+        creation_time (datetime64): 创建时间，即00\06\12\18之一
+        aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    b = aoi.bounds
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
+
+    ds = open_dataset(data_variable, creation_date, creation_time, bbox, time_chunks)
+    
+    return ds
 
 if __name__ == '__main__':
     pass

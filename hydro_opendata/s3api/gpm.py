@@ -1,3 +1,11 @@
+'''
+该模块用于从minio中读取gpm数据，主要方法包括：
+
+- `open_dataset` - 普通读取数据方法
+- `from_shp` - 通过已有矢量范围读取数据方法
+- `from_aoi` - 通过已有GeoDataFrame范围读取数据方法
+'''
+
 import os
 import numpy as np
 import s3fs
@@ -254,6 +262,18 @@ def cf2datetime(ds):
     return ds
 
 def open_dataset(start_time=np.datetime64("2023-01-01T00:00:00.000000000"), end_time=np.datetime64("2023-01-02T00:00:00.000000000"), bbox=box, time_chunks=48):
+    '''
+    从minio服务器读取gpm数据
+
+    Args:
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        bbox (list|tuple): 四至范围
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
     
     if end_time <= start_time:
         raise Exception('结束时间不能早于开始时间')
@@ -543,7 +563,19 @@ def open_dataset(start_time=np.datetime64("2023-01-01T00:00:00.000000000"), end_
 import geopandas as gpd
 
 def from_shp(start_time=np.datetime64("2023-01-01T00:00:00.000000000"), end_time=np.datetime64("2023-01-02T00:00:00.000000000"), shp=None, time_chunks=48):
+    '''
+    通过已有的矢量数据范围从minio服务器读取gpm数据
 
+    Args:
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        shp (str): 矢量数据路径
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
     bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0.05)
@@ -552,7 +584,26 @@ def from_shp(start_time=np.datetime64("2023-01-01T00:00:00.000000000"), end_time
     
     return ds
 
+def from_aoi(start_time=np.datetime64("2023-01-01T00:00:00.000000000"), end_time=np.datetime64("2023-01-02T00:00:00.000000000"), aoi:gpd.GeoDataFrame=None, time_chunks=48):
+    '''
+    用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gpm数据
 
+    Args:
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
+    b = aoi.bounds
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0.05)
+
+    ds = open_dataset(start_time, end_time, bbox, time_chunks)
+    
+    return ds
 
 if __name__ == '__main__':
     

@@ -1,3 +1,12 @@
+'''
+该模块用于从minio中读取era5-land数据，主要方法包括：
+
+- `open_dataset` - 普通读取数据方法
+- `from_shp` - 通过已有矢量范围读取数据方法
+- `from_aoi` - 通过已有GeoDataFrame范围读取数据方法
+- `to_netcdf` - 保存到本地文件
+'''
+
 from ..common import minio_paras, fs, ro
 from ..utils import regen_box
 import os
@@ -117,7 +126,20 @@ accumulated = [
 
 
 def open_dataset(data_variables=variables, start_time=start, end_time=end, bbox=box, time_chunks=24):
+    '''
+    从minio服务器读取era5-land数据
 
+    Args:
+        data_variables (list): 数据变量列表
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        bbox (list|tuple): 四至范围
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
     chunks = {"time": time_chunks}
     ds = xr.open_dataset(
         "reference://", 
@@ -180,9 +202,44 @@ def open_dataset(data_variables=variables, start_time=start, end_time=end, bbox=
 import geopandas as gpd
 
 def from_shp(data_variables=variables, start_time=start, end_time=end, shp=None, time_chunks=24):
+    '''
+    通过已有的矢量数据范围从minio服务器读取era5-land数据
 
+    Args:
+        data_variables (list): 数据变量列表
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        shp (str): 矢量数据路径
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
+    bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
+
+    ds = open_dataset(data_variables, start_time, end_time, bbox, time_chunks)
+    
+    return ds
+
+def from_aoi(data_variables=variables, start_time=start, end_time=end, aoi:gpd.GeoDataFrame=None, time_chunks=24):
+    '''
+    用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取era5-land数据
+
+    Args:
+        data_variables (list): 数据变量列表
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
+    
+    b = aoi.bounds
     bbox = regen_box((b.loc[0]['minx'],b.loc[0]['miny'],b.loc[0]['maxx'],b.loc[0]['maxy']), 0.1, 0)
 
     ds = open_dataset(data_variables, start_time, end_time, bbox, time_chunks)
@@ -260,6 +317,21 @@ def _creatspinc(value, data_vars, lats, lons, starttime, filename, resolution):
     
 
 def to_netcdf(data_variables=variables, start_time=start, end_time=end, shp=None, resolution='hourly', save_file='era5.nc', time_chunks=24):
+    '''
+    读取数据并保存为本地nc文件
+
+    Args:
+        data_variables (list): 数据变量列表
+        start_time (datetime64): 开始时间
+        end_time (datetime64): 结束时间
+        shp (str): 已有的矢量数据路径
+        resolution (str): 输出的时间分辨率
+        save_file (str): 输出的文件路径
+        time_chunks (int): 分块数量
+
+    Returns:
+        dataset (Dataset): 读取结果
+    '''
     
     gdf = gpd.GeoDataFrame.from_file(shp)
     b = gdf.bounds
