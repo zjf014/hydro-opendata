@@ -9,11 +9,11 @@ copyright: "Copyright &copy; 2023 - 2023 Jianfeng Zhu"
 nav:
     - Home: index.md
     - Installation: installation.md
-    - Module-Downloader: downloader.md
-    - Module-Processor: processor.md
-    - Module-Stac: stac.md
-    - Module-S3api: s3api.md
-    - Module-GISTools: gistools.md
+    - Downloader: downloader.md
+    - Processor: processor.md
+    - Stac: stac.md
+    - S3api: s3api.md
+    - GISTools: gistools.md
     # - Contributing: contributing.md
     - FAQ: faq.md
     - Changelog: changelog.md
@@ -24,7 +24,7 @@ nav:
     #       - wis_stac module: wis_stac.md
           # - common module: common.md
     - Resources:
-          - hydro-GIS: hydro-gis.md
+          - hydroGIS: hydrogis.md
 
 theme:
     palette:
