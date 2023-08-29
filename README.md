@@ -9,7 +9,7 @@
 
 
 -   Free software: MIT license
--   Documentation: <https://zjf014.github.io/hydro_opendata>
+-   Documentation: <https://zjf014.github.io/hydro-opendata>
  
 ## 背景
 
