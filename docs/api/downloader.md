@@ -1,3 +1,3 @@
 # DEM
 
-::: hydro_opendata.downloader.dem
+::: hydro_opendata.downloader.downloader

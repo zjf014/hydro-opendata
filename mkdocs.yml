@@ -22,10 +22,15 @@ nav:
     # - Examples:
     #     - examples/intro.ipynb
     - API Reference:
-          - Downloader module: 
-                  - Downloader: api/downloader.md
-                  - DEM: api/dem.md
-          # - common module: common.md
+        - Downloader module: 
+            - Downloader: api/downloader.md
+            - DEM: api/dem.md
+        - Stac module:
+            - minio: api/minio.md
+        - S3api module:
+            - ear5: api/era5.md
+            - gpm: api/gpm.md
+            - gfs: api/gfs.md
     - Resources:
           - hydroGIS: hydrogis.md
 
