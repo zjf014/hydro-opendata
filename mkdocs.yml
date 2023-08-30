@@ -28,7 +28,7 @@ nav:
         - Stac module:
             - minio: api/minio.md
         - S3api module:
-            - ear5: api/era5.md
+            - era5: api/era5.md
             - gpm: api/gpm.md
             - gfs: api/gfs.md
     - Resources:
