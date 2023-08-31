@@ -2,7 +2,7 @@
 
 
 [![image](https://img.shields.io/pypi/v/hydro_opendata.svg)](https://pypi.python.org/pypi/hydro_opendata)
-
+[![image](https://readthedocs.org/projects/hydro-opendata/badge/?version=latest)](https://hydro-opendata.readthedocs.io/en/latest/?version=latest)
 
 **可用于水文学科学计算的开放数据的获取、管理和使用路径及方法。**
 

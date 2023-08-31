@@ -26,17 +26,17 @@ change = np.datetime64("2022-09-01")
 # change_date = date(2022,9,1)
 box = (115,38,136,54)
 
-'''
-2t  ----- temperature_2m_above_ground 
-2sh ----- specific_humidity_2m_above_ground 
-2r  ----- relative_humidity_2m_above_ground 
-10u ----- u_component_of_wind_10m_above_ground 
-10v ----- v_component_of_wind_10m_above_ground 
-tp  ----- total_precipitation_surface 
-pwat----- precipitable_water_entire_atmosphere 
-tcc ----- total_cloud_cover_entire_atmosphere
-dswrf ----- downward_shortwave_radiation_flux
-'''
+
+# 2t  ----- temperature_2m_above_ground 
+# 2sh ----- specific_humidity_2m_above_ground 
+# 2r  ----- relative_humidity_2m_above_ground 
+# 10u ----- u_component_of_wind_10m_above_ground 
+# 10v ----- v_component_of_wind_10m_above_ground 
+# tp  ----- total_precipitation_surface 
+# pwat----- precipitable_water_entire_atmosphere 
+# tcc ----- total_cloud_cover_entire_atmosphere
+# dswrf ----- downward_shortwave_radiation_flux
+
 variables = {
     'dswrf':'downward_shortwave_radiation_flux',
     'pwat':'precipitable_water_entire_atmosphere',

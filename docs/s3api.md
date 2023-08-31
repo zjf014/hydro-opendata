@@ -47,11 +47,11 @@ ds1 = gpm.open_dataset(start_time=start_time, end_time=end_time, bbox=bbox)
 
 // 通过矢量数据文件读取
 shp = 'basin.shp'
-ds2 = era5.from_shp(start_time=start_time, end_time=end_time, shp=shp)
+ds2 = gpm.from_shp(start_time=start_time, end_time=end_time, shp=shp)
 
 // 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
-ds3 = era5.from_aoi(start_time=start_time, end_time=end_time, aoi=aoi)
+ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, aoi=aoi)
 ```
 
 - 读取gpm数据
@@ -64,14 +64,14 @@ creation_date=np.datetime64("2023-06-01")
 
 // 通过指定四至范围读取
 bbox=(121,39,123,40)
-ds1 = gpm.open_dataset(data_variable='tp', creation_date=creation_date, creation_time='00', bbox=bbox)
+ds1 = gfs.open_dataset(data_variable='tp', creation_date=creation_date, creation_time='00', bbox=bbox)
 
 // 通过矢量数据文件读取
 shp = 'basin.shp'
-ds2 = era5.from_shp(data_variable='tp', creation_date=creation_date, creation_time='00', shp=shp)
+ds2 = gfs.from_shp(data_variable='tp', creation_date=creation_date, creation_time='00', shp=shp)
 
 // 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
-ds3 = era5.from_aoi(data_variable='tp', creation_date=creation_date, creation_time='00', aoi=aoi)
+ds3 = gfs.from_aoi(data_variable='tp', creation_date=creation_date, creation_time='00', aoi=aoi)
 ```
 

@@ -9,7 +9,7 @@ copyright: "Copyright &copy; 2023 - 2023 Jianfeng Zhu"
 nav:
     - Home: index.md
     - Installation: installation.md
-    - Module:
+    - Modules:
         - Downloader: downloader.md
         - Processor: processor.md
         - Stac: stac.md
@@ -19,13 +19,22 @@ nav:
     - FAQ: faq.md
     - Changelog: changelog.md
     - Report Issues: https://github.com/zjf014/hydro-opendata/issues
-    # - Examples:
-    #     - examples/intro.ipynb
-    # - API Reference:
-    #       - wis_stac module: wis_stac.md
-          # - common module: common.md
+    - Examples:
+        - modules/downloader.ipynb
+        - modules/minio.ipynb
+        - modules/s3api.ipynb
+    - API Reference:
+        - Downloader module: 
+            - Downloader: api/downloader.md
+            - DEM: api/dem.md
+        - Stac module:
+            - minio: api/minio.md
+        - S3api module:
+            - era5: api/era5.md
+            - gpm: api/gpm.md
+            - gfs: api/gfs.md
     - Resources:
-          - hydro-GIS: hydro-gis.md
+          - hydroGIS: hydrogis.md
 
 theme:
     palette:
@@ -67,11 +76,11 @@ plugins:
     # - pdf-export
     - mkdocs-jupyter:
           include_source: True
-          ignore_h1_titles: True
-          execute: True
-          allow_errors: false
-          ignore: ["conf.py"]
-          execute_ignore: ["*ignore.ipynb"]
+          # ignore_h1_titles: True
+          # execute: True
+          # allow_errors: false
+          # ignore: ["conf.py"]
+          # execute_ignore: ["*ignore.ipynb"]
           
 markdown_extensions:
     - admonition
@@ -91,4 +100,3 @@ markdown_extensions:
 #     analytics:
 #         provider: google
 #         property: UA-XXXXXXXXX-X
-
