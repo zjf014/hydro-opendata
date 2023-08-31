@@ -8,7 +8,7 @@
 
 
 -   Free software: MIT license
--   Documentation: <https://zjf014.github.io/hydro_opendata>
+-   Documentation: <https://hydro-opendata.readthedocs.io/en/latest/>
     
 
 ## 功能

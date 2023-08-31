@@ -171,7 +171,7 @@ def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), crea
     
     return ds
 
-def from_shp(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', aoi:gpd.GeoDataFrame=None, time_chunks=24):
+def from_aoi(data_variable='tp', creation_date=np.datetime64("2022-09-01"), creation_time='00', aoi:gpd.GeoDataFrame=None, time_chunks=24):
     '''
     通过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gfs数据
 
