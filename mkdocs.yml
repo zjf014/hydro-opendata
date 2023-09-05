@@ -21,8 +21,9 @@ nav:
     - Report Issues: https://github.com/zjf014/hydro-opendata/issues
     - Examples:
         - modules/downloader.ipynb
-        - modules/minio.ipynb
+        - modules/stac.ipynb
         - modules/s3api.ipynb
+        - modules/minio.ipynb
     - API Reference:
         - Downloader module: 
             - Downloader: api/downloader.md

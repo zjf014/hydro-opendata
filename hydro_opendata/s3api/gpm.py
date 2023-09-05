@@ -30,6 +30,7 @@ with fs.open(os.path.join(bucket_name, 'geodata/gpm/gpm.json')) as f:
 end = np.datetime64(cont['end'])
 
 box = (73.05, 3.05, 135.95, 53.95)
+
 variables=[
     'HQobservationTime',
     'HQprecipSource',

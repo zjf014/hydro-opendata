@@ -12,15 +12,15 @@
 
 - 通过给定aoi获取可用数据列表
 ```python
-from hydro_opendata.stac.minio import Era5_land, GPM_IMERG_Early, GFS_atmos
+from hydro_opendata.stac.minio import ERA5LCatalog, GPMCatalog, GFSCatalog
 
-era5 = Era5_land()
+era5 = ERA5LCatalog()
 e = era5.search(aoi=aoi)
 
-gpm = GPM_IMERG_Early()
+gpm = GPMCatalog()
 g = gpm.search(aoi=aoi)
 
-gfs = GFS_atmos('tp')    // 目前只支持降雨数据
+gfs = GFSCatalog('tp')    // 目前只支持降雨数据
 f = gfs.search(aoi=aoi)
 ```
 
@@ -29,15 +29,6 @@ f = gfs.search(aoi=aoi)
 - 通过给定aoi和时间范围获取sentinel数据清单
 
 ## 部分数据详情
-
-### Digital Elevation/Surface Model
-- [ALOS World 3D - 30m](https://www.eorc.jaxa.jp/ALOS/en/dataset/aw3d30/aw3d30_e.htm) -> alos-dem: 来自日本宇宙航空航天所(JAXA)的全球DEM数据，空间分辨率约30m，目前已下载松辽流域数据
-- [Copernicus DEM GLO-30](https://spacedata.copernicus.eu/explore-more/news-archive/-/asset_publisher/Ye8egYeRPLEs/blog/id/434960) -> [copernicus-dem](./geodata/clo30/): 来自欧洲航天局(ESA)的全球dem数据，空间分辨率约30m，目前已下载松辽流域数据
-- [SRTM DEM](https://www.earthdata.nasa.gov/sensors/srtm)
-    - [SRTMGL1](https://lpdaac.usgs.gov/products/srtmgl1v003/) -> srtm30: 来自美国航空航天局(NASA)和美国国防部国家测绘局(NIMA)的全球dem数据，空间分辨率约30m，目前已下载全国范围数据
-    - [SRTMGL3](https://lpdaac.usgs.gov/products/srtmgl3v003/) -> srtm90: 来自美国航空航天局(NASA)和美国国防部国家测绘局(NIMA)的全球dem数据，空间分辨率约90m，目前已下载全国范围数据
-- [MERIT Hydro Flow Direction Map](http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/) -> dir90: 来自东京大学的全球水文流向数据，空间分辨率90m，目前已下载全国范围数据，可用于生成子流域
-
 
 ### ECMWF Reanalysis v5
 - [ERA5-Land](https://www.ecmwf.int/en/forecasts/dataset/ecmwf-reanalysis-v5-land) -> era5: 来自European Centre for Medium-Range Weather Forecasts(ECMWF)提供的Copernicus Climate Change Service，是一种再分析(reanalysis)数据集

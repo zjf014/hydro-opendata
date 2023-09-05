@@ -13,21 +13,24 @@
 - 读取era5数据
 
 ```python
-from hydro_opendata.s3api import era5
+from hydro_opendata.s3api.minio import ERA5LReader
 import numpy as np
 
-start_time=np.datetime64("2023-06-01T00:00:00.000000000")
-end_time=np.datetime64("2023-06-30T23:00:00.000000000")
+era5 = ERA5LReader()
 
-// 通过指定四至范围读取
+# 指定开始及结束时间
+start_time=np.datetime64("2021-06-01T00:00:00.000000000")
+end_time=np.datetime64("2021-06-30T23:00:00.000000000")
+
+# 通过指定四至范围读取
 bbox=(121,39,123,40)
 ds1 = era5.open_dataset(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, bbox=bbox)
 
-// 通过矢量数据文件读取
+# 通过矢量数据文件读取
 shp = 'basin.shp'
 ds2 = era5.from_shp(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, shp=shp)
 
-// 通过已有aoi对象读取
+# 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
 ds3 = era5.from_aoi(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, aoi=aoi)
 ```
@@ -35,21 +38,25 @@ ds3 = era5.from_aoi(data_variables=['Total precipitation'], start_time=start_tim
 - 读取gpm数据
 
 ```python
-from hydro_opendata.s3api import gpm
+from hydro_opendata.s3api.minio import GPMReader
 import numpy as np
 
+# 指定数据集wis或camels
+gpm = GPMReader('wis')
+
+# 指定开始及结束时间
 start_time=np.datetime64("2023-06-01T00:00:00.000000000")
 end_time=np.datetime64("2023-06-30T23:30:00.000000000")
 
-// 通过指定四至范围读取
+# 通过指定四至范围读取
 bbox=(121,39,123,40)
 ds1 = gpm.open_dataset(start_time=start_time, end_time=end_time, bbox=bbox)
 
-// 通过矢量数据文件读取
+# 通过矢量数据文件读取
 shp = 'basin.shp'
 ds2 = gpm.from_shp(start_time=start_time, end_time=end_time, shp=shp)
 
-// 通过已有aoi对象读取
+# 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
 ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, aoi=aoi)
 ```
@@ -57,20 +64,23 @@ ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, aoi=aoi)
 - 读取gpm数据
 
 ```python
-from hydro_opendata.s3api import gfs
+from hydro_opendata.s3api import GFSReader
 import numpy as np
 
+gpm = GPMReader()
+
+# 指定日期
 creation_date=np.datetime64("2023-06-01")
 
-// 通过指定四至范围读取
+# 通过指定四至范围读取
 bbox=(121,39,123,40)
 ds1 = gfs.open_dataset(data_variable='tp', creation_date=creation_date, creation_time='00', bbox=bbox)
 
-// 通过矢量数据文件读取
+# 通过矢量数据文件读取
 shp = 'basin.shp'
 ds2 = gfs.from_shp(data_variable='tp', creation_date=creation_date, creation_time='00', shp=shp)
 
-// 通过已有aoi对象读取
+# 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
 ds3 = gfs.from_aoi(data_variable='tp', creation_date=creation_date, creation_time='00', aoi=aoi)
 ```
