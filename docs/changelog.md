@@ -1,8 +1,14 @@
 # 更新日志
 
+## 20230905更新：
+**更新内容：**
+1. 更新minio后台gpm数据，加入了camels范围的gpm数据；
+2. 原stac包下各元素整合为catalog，原s3api下各元素整合为reader；
+3. 整合了catalog和reader形成data包。
+
 ## 20230825更新：
 **更新内容：**
-1. 合并原wis-stac、wis-s3api、wis-downloader到hydro_opendata
+1. 合并原wis-stac、wis-s3api、wis-downloader到hydro_opendata。
 
 ## 20230824更新：
 **更新内容：**
