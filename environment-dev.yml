@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - s3fs
+  - s3fs=2022.05
   - kerchunk
   - xarray
   - zarr

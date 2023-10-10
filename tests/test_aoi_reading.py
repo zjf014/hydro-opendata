@@ -1,7 +1,7 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-10-06 21:17:17
-LastEditTime: 2023-10-07 15:12:08
+LastEditTime: 2023-10-10 10:12:04
 LastEditors: Wenyu Ouyang
 Description: Test reading according to AOI
 FilePath: \hydro_opendata\tests\test_aoi_reading.py
@@ -60,7 +60,5 @@ def test_read_gpm(aoi_shp, start_time, end_time):
 
 def test_read_gfs(aoi_shp, creation_date):
     gfs = GFSReader()
-    ds3 = gfs.from_aoi(
-        data_variable="tp", creation_date=creation_date, creation_time="00", aoi=aoi_shp
-    )
+    ds3 = gfs.from_aoi(creation_date=creation_date, creation_time="00", aoi=aoi_shp)
     print(ds3)
