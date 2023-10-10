@@ -1,7 +1,7 @@
 """
 Author: Jianfeng Zhu
 Date: 2023-10-06 20:50:41
-LastEditTime: 2023-10-07 14:05:41
+LastEditTime: 2023-10-10 10:20:30
 LastEditors: Wenyu Ouyang
 Description: Top-level package for hydro_opendata
 FilePath: \hydro_opendata\hydro_opendata\__init__.py
@@ -15,8 +15,8 @@ from .common import minio_paras
 
 
 __author__ = """Jianfeng Zhu"""
-__email__ = "zjf014@gmail.com"
-__version__ = "0.0.1"
+__email__ = 'zjf014@gmail.com'
+__version__ = '0.0.1'
 
 home_path = str(pathlib.Path.home())
 
