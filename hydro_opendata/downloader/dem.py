@@ -103,9 +103,9 @@ class Alos_DEM:
 
         '''
 
-        if hrefs is not None:
+        if self._hrefs is not None:
 
-            for href in hrefs:
+            for href in self._hrefs:
                 url=requests.utils.urlparse(href)
                 file_path=os.path.join(save_dir,url.path.split('/')[-1])
 

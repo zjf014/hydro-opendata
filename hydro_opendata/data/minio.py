@@ -3,10 +3,10 @@ from ..s3api.minio import ERA5LReader, GPMReader, GFSReader
 
 class Era5L:
     
-    def __init__(self, dataset='wis'):
+    def __init__(self):
         
         self._catalog = ERA5LCatalog()
-        self._reader = ERA5LReader(dataset)
+        self._reader = ERA5LReader()
         
     @property
     def catalog(self):
@@ -19,10 +19,10 @@ class Era5L:
 
 class GPM:
     
-    def __init__(self, dataset='wis'):
+    def __init__(self):
         
         self._catalog = GPMCatalog()
-        self._reader = GPMReader(dataset)
+        self._reader = GPMReader()
         
     @property
     def catalog(self):
@@ -34,10 +34,10 @@ class GPM:
     
 class GFS:
     
-    def __init__(self, dataset='wis', variable='tp'):
+    def __init__(self, variable='tp'):
         
         self._catalog = GFSCatalog(variable)
-        self._reader = GFSReader(dataset)
+        self._reader = GFSReader()
         self._reader.set_default_variable(self._catalog.variable)
         
     @property
