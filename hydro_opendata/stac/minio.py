@@ -1,10 +1,10 @@
-'''
+"""
 该模块用于获取minio服务器中的数据列表，包括：
 
-- `ERA5LCatalog`
-- `GPMCatalog`
-- `GFSCatalog`
-'''
+- `Era5_land`
+- `GPM_IMERG_Early`
+- `GFS_atmos`
+"""
 
 from ..common import minio_paras, fs
 import os
@@ -13,37 +13,32 @@ import pandas as pd
 import geopandas as gpd
 import json
 
-bucket_name = minio_paras['bucket_name']
+bucket_name = minio_paras["bucket_name"]
 
-class ERA5LCatalog():
-    '''
+
+class ERA5LCatalog:
+    """
     用于获取era5-land的数据源信息，并搜索minio服务器中的数据范围
-    
+
     Attributes:
         collection_id (str): 数据集名称
         data_sources (str): 数据源
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
         temporal_resolution (str): 时间分辨率
-        
         datasets (dict): minio服务器中的已有数据集
         
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
-    '''
-    
-    def __init__(self):
-        
-        self._collection_id = 'era5-land'
-        self._datasources = 'ECMWF'
-        self._description = 'https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview'
-        self._spatialresolution = '0.1 x 0.1; Native resolution is 9 km.'
-        self._temporalresolution = 'hourly'
+    """
 
-        # with fs.open('test/geodata/era5_land.json/')
-        # self._starttime = np.datetime64('2015-07-01T00:00:00')
-        # self._endtime = np.datetime64('2021-12-31T23:00:00')
-        # self._bbox = (115, 38, 136, 54)
+    def __init__(self):
+        self._collection_id = "era5-land"
+        self._datasources = "ECMWF"
+        self._description = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview"
+        self._spatialresolution = "0.1 x 0.1; Native resolution is 9 km."
+        self._temporalresolution = "hourly"
+        
         self._datasets = self._get_datasets()
     
     def _get_datasets(self):
@@ -63,41 +58,29 @@ class ERA5LCatalog():
     @property
     def collection_id(self):
         return self._collection_id
-    
+
     @property
     def data_sources(self):
         return self._datasources
-    
+
     @property
     def description(self):
         return self._description
-    
+
     @property
     def spatial_resolution(self):
         return self._spatialresolution
-    
+
     @property
     def temporal_resolution(self):
         return self._temporalresolution
-    
+
     @property
     def datasets(self):
         return self._datasets
 
-#     @property
-#     def start_time(self):
-#         return self._starttime
-    
-#     @property
-#     def end_time(self):
-#         return self._endtime
-    
-#     @property
-#     def bbox(self):
-#         return self._bbox
-        
     def search(self, aoi, start_time=None, end_time=None):
-        '''
+        """
         查询并获取数据清单
 
         Args:
@@ -107,7 +90,7 @@ class ERA5LCatalog():
 
         Returns:
             datalist (GeoDataFrame): 符合条件的数据清单
-        '''
+        """
         
         clips = []
         
@@ -142,26 +125,25 @@ class ERA5LCatalog():
                 clips.append(gdf.clip(aoi))
 
         return pd.concat(clips)
-        
 
-class GPMCatalog():
-    '''
+class GPMCatalog:
+    """
     用于获取gpm的数据源信息，并搜索minio服务器中的数据范围
-    
+
     Attributes:
         collection_id (str): 数据集名称
         data_sources (str): 数据源
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
-        temporal_resolution (str): 时间分辨率
-        
+        temporal_resolution (str): 时间分辨率  
         datasets (dict): minio服务器中的已有数据集
-        
+
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
-    '''
-    
+    """
+
     def __init__(self):
+
         self._collection_id = 'gpm-imerg-early'
         self._datasources = 'NASA & JAXA'
         self._description = 'https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGHHE_06/summary'
@@ -218,41 +200,29 @@ class GPMCatalog():
     @property
     def collection_id(self):
         return self._collection_id
-    
+
     @property
     def data_sources(self):
         return self._datasources
-    
+
     @property
     def description(self):
         return self._description
-    
+
     @property
     def spatial_resolution(self):
         return self._spatialresolution
-    
+
     @property
     def temporal_resolution(self):
         return self._temporalresolution
-    
+
     @property
     def datasets(self):
-        return self._datasets
-    
-#     @property
-#     def start_time(self):
-#         return self._starttime
-    
-#     @property
-#     def end_time(self):
-#         return self._endtime
-    
-#     @property
-#     def bbox(self):
-#         return self._bbox            
-            
+        return self._datasets  
+
     def search(self, aoi, start_time=None, end_time=None):
-        '''
+        """
         查询并获取数据清单
 
         Args:
@@ -262,7 +232,7 @@ class GPMCatalog():
 
         Returns:
             datalist (GeoDataFrame): 符合条件的数据清单
-        '''
+        """
         
         clips = []
         
@@ -302,35 +272,31 @@ class GPMCatalog():
 
         
 class GFSCatalog():
-    '''
+    """
     用于获取gfs的数据源信息，并搜索minio服务器中的数据范围
-    
+
     Attributes:
         collection_id (str): 数据集名称
         data_sources (str): 数据源
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
         temporal_resolution (str): 时间分辨率
-        
         datasets (dict): minio服务器中的已有数据集
         
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
-    '''
-    
-    def __init__(self, variable='tp'):
-        self._variable = variable
-        self._collection_id = f'gfs_atmos.{variable}'
-        self._datasources = 'NOAA'
-        self._description = 'https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php'
-        self._spatialresolution = '0.25 x 0.25'
-        self._temporalresolution = 'hourly; 1-120h'
+    """
 
-        # with fs.open(os.path.join(bucket_name,'geodata/gfs/gfs.json')) as f:
-        #     gfs = json.load(f)
-        #     self._starttime = np.datetime64(gfs[variable][0]['start'])
-        #     self._endtime = np.datetime64(gfs[variable][-1]['end'])
-            # self.bbox = gpm['bbox']
+    def __init__(self, variable="tp"):
+        self._variable = variable
+        self._collection_id = f"gfs_atmos.{variable}"
+        self._datasources = "NOAA"
+        self._description = (
+            "https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php"
+        )
+        self._spatialresolution = "0.25 x 0.25"
+        self._temporalresolution = "hourly; 1-120h"
+
         self._datasets = self._get_datasets()
     
     def _get_datasets(self):
@@ -343,45 +309,37 @@ class GFSCatalog():
         dss['wis'] = gfs[self._variable]
         
         return dss
-            
+
     @property
     def variable(self):
-        return self._variable    
-    
+        return self._variable
+
     @property
     def collection_id(self):
         return self._collection_id
-    
+
     @property
     def data_sources(self):
         return self._datasources
-    
+
     @property
     def description(self):
         return self._description
-    
+
     @property
     def spatial_resolution(self):
         return self._spatialresolution
-    
+
     @property
     def temporal_resolution(self):
         return self._temporalresolution
-    
+
     @property
     def datasets(self):
         return self._datasets
-    
-#     @property
-#     def start_time(self):
-#         return self._starttime
-    
-#     @property
-#     def end_time(self):
-#         return self._endtime
-    
+
     def search(self, aoi, start_time=None, end_time=None):
-        '''
+        """
         查询并获取数据清单
 
         Args:
@@ -391,7 +349,7 @@ class GFSCatalog():
 
         Returns:
             datalist (GeoDataFrame): 符合条件的数据清单
-        '''
+        """
         
         clips = []
         

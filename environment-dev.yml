@@ -1,0 +1,24 @@
+name: opendata
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - s3fs=2022.05
+  - kerchunk
+  - xarray
+  - zarr
+  - dask
+  - cfgrib
+  - eccodes
+  - netCDF4
+  - geopandas
+  - requests
+  - tqdm
+  # for development
+  - pytest
+  - black
+  - flake8
+  - mkdocstrings
+  - mkdocstrings-python
+  - mkdocs-git-revision-date-plugin
+  - mkdocs-jupyter
