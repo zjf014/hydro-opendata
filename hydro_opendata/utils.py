@@ -113,18 +113,20 @@ def regen_box(bbox, resolution, offset):
     )
 
     # print(LLON,BLAT,RLON,TLAT)
-    return [LLON,BLAT,RLON,TLAT]
+    return [LLON, BLAT, RLON, TLAT]
+
 
 def validate(date_text, formatter, error):
     try:
         return datetime.strptime(date_text, formatter)
     except ValueError:
         raise ValueError(error)
-        
+
+
 def cf2datetime(ds):
     ds = ds.copy()
-    time_tmp1 = ds.indexes['time']
-    attrs = ds.coords['time'].attrs
+    time_tmp1 = ds.indexes["time"]
+    attrs = ds.coords["time"].attrs
     time_tmp2 = []
     for i in range(time_tmp1.shape[0]):
         tmp = time_tmp1[i]
@@ -134,9 +136,10 @@ def cf2datetime(ds):
         d = str(tmp.hour).zfill(2)
         e = str(tmp.minute).zfill(2)
         f = str(tmp.second).zfill(2)
-        time_tmp2.append(np.datetime64('{}-{}-{} {}:{}:{}.00000000'.format(a,b,c,d,e,f))) 
-    ds = ds.assign_coords(time = time_tmp2)
-    ds.coords['time'].attrs = attrs
-    
-    return ds
+        time_tmp2.append(
+            np.datetime64("{}-{}-{} {}:{}:{}.00000000".format(a, b, c, d, e, f))
+        )
+    ds = ds.assign_coords(time=time_tmp2)
+    ds.coords["time"].attrs = attrs
 
+    return ds

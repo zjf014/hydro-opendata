@@ -103,10 +103,9 @@ class Alos_DEM:
         """
 
         if self._hrefs is not None:
-
             for href in self._hrefs:
-                url=requests.utils.urlparse(href)
-                file_path=os.path.join(save_dir,url.path.split("/")[-1])
+                url = requests.utils.urlparse(href)
+                file_path = os.path.join(save_dir, url.path.split("/")[-1])
 
                 if os.path.exists(file_path) and not cover:
                     continue
