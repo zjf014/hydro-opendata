@@ -24,15 +24,15 @@ end_time=np.datetime64("2021-06-30T23:00:00.000000000")
 
 # 通过指定四至范围读取
 bbox=(121,39,123,40)
-ds1 = era5.open_dataset(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, bbox=bbox)
+ds1 = era5.open_dataset(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, dataset='wis', bbox=bbox)
 
 # 通过矢量数据文件读取
 shp = 'basin.shp'
-ds2 = era5.from_shp(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, shp=shp)
+ds2 = era5.from_shp(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, dataset='wis', shp=shp)
 
 # 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
-ds3 = era5.from_aoi(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, aoi=aoi)
+ds3 = era5.from_aoi(data_variables=['Total precipitation'], start_time=start_time, end_time=end_time, dataset='wis', aoi=aoi)
 ```
 
 - 读取gpm数据
@@ -50,15 +50,15 @@ end_time=np.datetime64("2023-06-30T23:30:00.000000000")
 
 # 通过指定四至范围读取
 bbox=(121,39,123,40)
-ds1 = gpm.open_dataset(start_time=start_time, end_time=end_time, bbox=bbox)
+ds1 = gpm.open_dataset(start_time=start_time, end_time=end_time, dataset='wis', bbox=bbox, time_resolution='1d')
 
 # 通过矢量数据文件读取
 shp = 'basin.shp'
-ds2 = gpm.from_shp(start_time=start_time, end_time=end_time, shp=shp)
+ds2 = gpm.from_shp(start_time=start_time, end_time=end_time, dataset='wis', shp=shp, time_resolution='1d')
 
 # 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
-ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, aoi=aoi)
+ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, dataset='wis', aoi=aoi, time_resolution='1d')
 ```
 
 - 读取gpm数据
@@ -74,14 +74,14 @@ creation_date=np.datetime64("2023-06-01")
 
 # 通过指定四至范围读取
 bbox=(121,39,123,40)
-ds1 = gfs.open_dataset(data_variable='tp', creation_date=creation_date, creation_time='00', bbox=bbox)
+ds1 = gfs.open_dataset(data_variable='tp', creation_date=creation_date, creation_time='00', dataset='wis', bbox=bbox)
 
 # 通过矢量数据文件读取
 shp = 'basin.shp'
-ds2 = gfs.from_shp(data_variable='tp', creation_date=creation_date, creation_time='00', shp=shp)
+ds2 = gfs.from_shp(data_variable='tp', creation_date=creation_date, creation_time='00', dataset='wis', shp=shp)
 
 # 通过已有aoi对象读取
 aoi = gpd.read_file(shp)
-ds3 = gfs.from_aoi(data_variable='tp', creation_date=creation_date, creation_time='00', aoi=aoi)
+ds3 = gfs.from_aoi(data_variable='tp', creation_date=creation_date, creation_time='00', dataset='wis', aoi=aoi)
 ```
 

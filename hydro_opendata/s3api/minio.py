@@ -18,31 +18,14 @@ class ERA5LReader:
     """
     用于从minio中读取era5-land数据
 
-    Attributes:
-        dataset_name (str): 数据集名称
-        starttime (datetime64): minio服务器中数据起始时间
-        endtime (datetime64): minio服务器中数据结束时间
-        bbox (list): minio服务器中数据空间范围
-        variables (str): 变量名
-
     Methods:
-        open_dataset(data_variables, starttime, endtime, bbox): 从minio中读取era5-land数据
-        from_shp(data_variables, starttime, endtime, shp): 通过已有的矢量数据范围从minio服务器读取era5-land数据
-        from_aoi(data_variables, starttime, endtime, aoi): 用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取era5-land数据
-        to_netcdf(data_variables, starttime, endtime, shp, resolution, save_file): 读取数据并保存为本地nc文件
+        open_dataset(data_variables, start_time, end_time, dataset, bbox): 从minio中读取era5-land数据
+        from_shp(data_variables, start_time, end_time, dataset, shp): 通过已有的矢量数据范围从minio服务器读取era5-land数据
+        from_aoi(data_variables, start_time, end_time, dataset, aoi): 用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取era5-land数据
+        to_netcdf(data_variables, start_time, end_time, dataset, shp, resolution, save_file): 读取数据并保存为本地nc文件
     """
 
-    def __init__(self, dataset_name="wis"):
-        self._dataset_name = dataset_name
-        if dataset_name == "wis":
-            self._dataset = "geodata"
-        # elif dataset_name == 'camels':
-        #     self._dataset = 'camdata'
-
-        self._starttime = np.datetime64("2015-07-01T00:00:00")
-        self._endtime = np.datetime64("2021-12-31T23:00:00")
-        self._bbox = (115, 38, 136, 54)
-
+    def __init__(self):
         self._variables = [
             "10 metre U wind component",
             "10 metre V wind component",
@@ -118,19 +101,12 @@ class ERA5LReader:
             "Total precipitation",
         ]
 
-    @property
-    def dataset_name(self):
-        return self._dataset_name
-
-    @property
-    def variables(self):
-        return self._variables
-
     def open_dataset(
         self,
         data_variables=["Total precipitation"],
         start_time=None,
         end_time=None,
+        dataset="wis",
         bbox=None,
         time_chunks=24,
     ):
@@ -141,6 +117,7 @@ class ERA5LReader:
             data_variables (list): 数据变量列表
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             bbox (list|tuple): 四至范围
             time_chunks (int): 分块数量
 
@@ -153,6 +130,22 @@ class ERA5LReader:
 
         if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
             raise Exception("四至范围格式错误")
+
+        if dataset != "wis" and dataset != "camels":
+            raise Exception("dataset参数错误")
+
+        if dataset == "wis":
+            self._dataset = "geodata"
+        elif dataset == "camels":
+            self._dataset = "camdata"
+
+        with fs.open(
+            os.path.join(bucket_name, f"{self._dataset}/era5_land/era5l.json")
+        ) as f:
+            cont = json.load(f)
+            self._starttime = np.datetime64(cont["start"])
+            self._endtime = np.datetime64(cont["end"])
+            self._bbox = cont["bbox"]
 
         chunks = {"time": time_chunks}
         ds = xr.open_dataset(
@@ -217,6 +210,7 @@ class ERA5LReader:
         data_variables=["Total precipitation"],
         start_time=None,
         end_time=None,
+        dataset="wis",
         shp=None,
         time_chunks=24,
     ):
@@ -227,6 +221,7 @@ class ERA5LReader:
             data_variables (list): 数据变量列表
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             shp (str): 矢量数据路径
             time_chunks (int): 分块数量
 
@@ -242,6 +237,10 @@ class ERA5LReader:
             0,
         )
 
+        ds = self.open_dataset(
+            data_variables, start_time, end_time, dataset, bbox, time_chunks
+        )
+
         return self.open_dataset(
             data_variables, start_time, end_time, bbox, time_chunks
         )
@@ -251,6 +250,7 @@ class ERA5LReader:
         data_variables=["Total precipitation"],
         start_time=None,
         end_time=None,
+        dataset="wis",
         aoi: gpd.GeoDataFrame = None,
         time_chunks=24,
     ):
@@ -261,6 +261,7 @@ class ERA5LReader:
             data_variables (list): 数据变量列表
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
             time_chunks (int): 分块数量
 
@@ -275,15 +276,18 @@ class ERA5LReader:
             0,
         )
 
-        return self.open_dataset(
-            data_variables, start_time, end_time, bbox, time_chunks
+        ds = self.open_dataset(
+            data_variables, start_time, end_time, dataset, bbox, time_chunks
         )
+
+        return ds
 
     def to_netcdf(
         self,
         data_variables=["Total precipitation"],
         start_time=None,
         end_time=None,
+        dataset="wis",
         shp=None,
         resolution="hourly",
         save_file="era5.nc",
@@ -296,6 +300,7 @@ class ERA5LReader:
             data_variables (list): 数据变量列表
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             shp (str): 已有的矢量数据路径
             resolution (str): 输出的时间分辨率
             save_file (str): 输出的文件路径
@@ -315,10 +320,10 @@ class ERA5LReader:
 
         if resolution == "hourly":
             ds = self.open_dataset(
-                data_variables, start_time, end_time, bbox, time_chunks
+                data_variables, start_time, end_time, dataset, bbox, time_chunks
             )
 
-            if ds.to_netcdf(save_file) is None:
+            if ds.to_netcdf(save_file) == None:
                 print(save_file, "已生成")
                 ds = xr.open_dataset(save_file)
                 return ds
@@ -329,12 +334,15 @@ class ERA5LReader:
             end_time = np.datetime64(f"{str(end_time)}T00:00:00.000000000")
 
             ds = self.open_dataset(
-                data_variables, start_time, end_time, bbox, time_chunks
+                data_variables, start_time, end_time, dataset, bbox, time_chunks
             )
 
             days = ds["time"].size // 24
 
-            data_vars = {k: v.attrs for k, v in ds.data_vars.items()}
+            data_vars = {}
+            for k, v in ds.data_vars.items():
+                data_vars[k] = v.attrs
+
             daily_arr = []
 
             for var, attr in data_vars.items():
@@ -373,12 +381,15 @@ class ERA5LReader:
             end_time = np.datetime64(f"{str(end_time)}T00:00:00.000000000")
 
             ds = self.open_dataset(
-                data_variables, start_time, end_time, bbox, time_chunks
+                data_variables, start_time, end_time, dataset, bbox, time_chunks
             )
 
             days = ds["time"].size // 6
 
-            data_vars = {k: v.attrs for k, v in ds.data_vars.items()}
+            data_vars = {}
+            for k, v in ds.data_vars.items():
+                data_vars[k] = v.attrs
+
             daily_arr = []
 
             for var, attr in data_vars.items():
@@ -420,34 +431,14 @@ class GPMReader:
     """
     用于从minio中读取gpm数据
 
-    Attributes:
-        dataset_name (str): 数据集名称
-        starttime (datetime64): minio服务器中数据起始时间
-        endtime (datetime64): minio服务器中数据结束时间
-        bbox (list): minio服务器中数据空间范围
-
     Methods:
-        open_dataset(data_variables, starttime, endtime, bbox): 从minio中读取gpm数据
-        from_shp(data_variables, starttime, endtime, shp): 通过已有的矢量数据范围从minio服务器读取gpm数据
-        from_aoi(data_variables, starttime, endtime, aoi): 用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gpm数据
+        open_dataset(start_time, end_time, dataset, bbox, time_resolution): 从minio中读取gpm数据
+        from_shp(start_time, end_time, dataset, shp, time_resolution): 通过已有的矢量数据范围从minio服务器读取gpm数据
+        from_aoi(start_time, end_time, dataset, aoi, time_resolution): 用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gpm数据
     """
 
-    def __init__(self, dataset_name="wis"):
-        self._dataset_name = dataset_name
-        if dataset_name == "wis":
-            self._dataset = "geodata"
-        elif dataset_name == "camels":
-            self._dataset = "camdata"
-
-        with fs.open(f"{bucket_name}/{self._dataset}/gpm/gpm.json") as f:
-            cont = json.load(f)
-            self._starttime = np.datetime64(cont["start"])
-            self._endtime = np.datetime64(cont["end"])
-            self._bbox = cont["bbox"]
-
-    @property
-    def dataset_name(self):
-        return self._dataset_name
+    def __init__(self):
+        pass
 
     def _get_dataset(self, scale, start_time, end_time, bbox, time_chunks):
         year = str(start_time)[:4]
@@ -455,14 +446,10 @@ class GPMReader:
         day = str(self._endtime)[8:10].zfill(2)
 
         if scale == "Y":
-            minio_path = (
-                f"s3://{bucket_name}/{self._dataset}/gpm/{year}/gpm{year}_inc.json"
-            )
+            minio_path = f"s3://{bucket_name}/{self._dataset}/gpm{self._time_resolution}/{year}/gpm{year}_inc.json"
 
         elif scale == "M":
-            minio_path = f"s3://{bucket_name}/{self._dataset}/gpm/{year}/{month}/gpm{year}{month}_inc.json"
-        # elif scale == "D":
-        #     minio_path = f"s3://{bucket_name}/{self._dataset}/gpm/{year}/{month}/gpm{year}{month}_{day}.json"
+            minio_path = f"s3://{bucket_name}/{self._dataset}/gpm{self._time_resolution}/{year}/{month}/gpm{year}{month}_inc.json"
 
         chunks = {"time": time_chunks}
         ds = xr.open_dataset(
@@ -478,6 +465,9 @@ class GPMReader:
                 },
             },
         )
+
+        # if self._time_resolution == '1d':
+        #     ds = cf2datetime(ds)
 
         ds = ds["precipitationCal"]
         # ds.to_dataframe().filter(['precipitationCal','precipitationUncal']).to_xarray()
@@ -505,7 +495,9 @@ class GPMReader:
         self,
         start_time=np.datetime64("2023-01-01T00:00:00.000000000"),
         end_time=np.datetime64("2023-01-02T00:00:00.000000000"),
+        dataset="wis",
         bbox=(121, 39, 122, 40),
+        time_resolution="1d",
         time_chunks=48,
     ):
         """
@@ -514,7 +506,9 @@ class GPMReader:
         Args:
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             bbox (list|tuple): 四至范围
+            time_resolution (str): 1d或30m
             time_chunks (int): 分块数量
 
         Returns:
@@ -525,7 +519,35 @@ class GPMReader:
             raise Exception("结束时间不能早于开始时间")
 
         if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
-            raise Exception("四至范围格式错误")
+            raise Exception("四至范围错误")
+
+        if dataset != "wis" and dataset != "camels":
+            raise Exception("dataset参数错误")
+
+        if time_resolution != "1d" and time_resolution != "30m":
+            raise Exception("time_resolution参数错误")
+
+        # dataset_name = get_dataset_name()
+        if dataset == "wis":
+            self._dataset = "geodata"
+        elif dataset == "camels":
+            self._dataset = "camdata"
+
+        if time_resolution == "1d":
+            self._time_resolution = "1d"
+        elif time_resolution == "30m":
+            self._time_resolution = ""
+
+        with fs.open(
+            os.path.join(
+                bucket_name,
+                f"{self._dataset}/gpm{self._time_resolution}/gpm{self._time_resolution}.json",
+            )
+        ) as f:
+            cont = json.load(f)
+            self._starttime = np.datetime64(cont["start"])
+            self._endtime = np.datetime64(cont["end"])
+            self._bbox = cont["bbox"]
 
         if start_time < self._starttime:
             start_time = self._starttime
@@ -726,7 +748,9 @@ class GPMReader:
         self,
         start_time=np.datetime64("2023-01-01T00:00:00.000000000"),
         end_time=np.datetime64("2023-01-02T00:00:00.000000000"),
+        dataset="wis",
         shp=None,
+        time_resolution="1d",
         time_chunks=48,
     ):
         """
@@ -735,7 +759,9 @@ class GPMReader:
         Args:
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             shp (str): 矢量数据路径
+            time_resolution (str): 1d或30m
             time_chunks (int): 分块数量
 
         Returns:
@@ -750,13 +776,18 @@ class GPMReader:
             0.05,
         )
 
-        return self.open_dataset(start_time, end_time, bbox, time_chunks)
+        ds = self.open_dataset(
+            start_time, end_time, dataset, bbox, time_resolution, time_chunks
+        )
+        return ds
 
     def from_aoi(
         self,
         start_time=np.datetime64("2023-01-01T00:00:00.000000000"),
         end_time=np.datetime64("2023-01-02T00:00:00.000000000"),
+        dataset="wis",
         aoi: gpd.GeoDataFrame = None,
+        time_resolution="1d",
         time_chunks=48,
     ):
         """
@@ -765,7 +796,9 @@ class GPMReader:
         Args:
             start_time (datetime64): 开始时间
             end_time (datetime64): 结束时间
+            dataset (str): wis或camels
             aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
+            time_resolution (str): 1d或30m
             time_chunks (int): 分块数量
 
         Returns:
@@ -778,8 +811,10 @@ class GPMReader:
             0.1,
             0.05,
         )
-
-        return self.open_dataset(start_time, end_time, bbox, time_chunks)
+        ds = self.open_dataset(
+            start_time, end_time, dataset, bbox, time_resolution, time_chunks
+        )
+        return ds
 
 
 class GFSReader:
@@ -787,7 +822,6 @@ class GFSReader:
     用于从minio中读取gpm数据
 
     Attributes:
-        dataset_name (str): 数据集名称
         variables (dict): 变量名称及缩写
 
     Methods:
@@ -796,13 +830,7 @@ class GFSReader:
         from_aoi(data_variables, creation_date, creation_time, aoi): 用过已有的GeoPandas.GeoDataFrame对象从minio服务器读取gfs数据
     """
 
-    def __init__(self, dataset_name="wis"):
-        self._dataset_name = dataset_name
-        if dataset_name == "wis":
-            self._dataset = "geodata"
-        # elif dataset_name == 'camels':
-        #     self._dataset = 'camdata'
-
+    def __init__(self):
         self._variables = {
             "dswrf": "downward_shortwave_radiation_flux",
             "pwat": "precipitable_water_entire_atmosphere",
@@ -816,14 +844,6 @@ class GFSReader:
         }
 
         self._default = "tp"
-
-        with fs.open(f"{bucket_name}/{self._dataset}/gfs/gfs.json") as f:
-            cont = json.load(f)
-            self._paras = cont
-
-    @property
-    def dataset_name(self):
-        return self._dataset_name
 
     @property
     def variables(self):
@@ -843,6 +863,7 @@ class GFSReader:
         self,
         creation_date=np.datetime64("2022-09-01"),
         creation_time="00",
+        dataset="wis",
         bbox=(115, 38, 136, 54),
         time_chunks=24,
     ):
@@ -852,6 +873,7 @@ class GFSReader:
         Args:
             creation_date (datetime64): 创建日期
             creation_time (datetime64): 创建时间，即00\06\12\18之一
+            dataset (str): wis或camels
             bbox (list|tuple): 四至范围
             time_chunks (int): 分块数量
 
@@ -861,6 +883,18 @@ class GFSReader:
 
         if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
             raise Exception("四至范围格式错误")
+
+        if dataset != "wis" and dataset != "camels":
+            raise Exception("dataset参数错误")
+
+        if dataset == "wis":
+            self._dataset = "geodata"
+        elif dataset == "camels":
+            self._dataset = "camdata"
+
+        with fs.open(os.path.join(bucket_name, f"{self._dataset}/gfs/gfs.json")) as f:
+            cont = json.load(f)
+            self._paras = cont
 
         short_name = self._default
         full_name = self._variables[short_name]
@@ -943,6 +977,7 @@ class GFSReader:
         self,
         creation_date=np.datetime64("2022-09-01"),
         creation_time="00",
+        dataset="wis",
         shp=None,
         time_chunks=24,
     ):
@@ -952,6 +987,7 @@ class GFSReader:
         Args:
             creation_date (datetime64): 创建日期
             creation_time (datetime64): 创建时间，即00\06\12\18之一
+            dataset (str): wis或camels
             shp (str): 矢量数据路径
             time_chunks (int): 分块数量
 
@@ -967,12 +1003,15 @@ class GFSReader:
             0,
         )
 
-        return self.open_dataset(creation_date, creation_time, bbox, time_chunks)
+        ds = self.open_dataset(creation_date, creation_time, dataset, bbox, time_chunks)
+
+        return ds
 
     def from_aoi(
         self,
         creation_date=np.datetime64("2022-09-01"),
         creation_time="00",
+        dataset="wis",
         aoi: gpd.GeoDataFrame = None,
         time_chunks=24,
     ):
@@ -982,6 +1021,7 @@ class GFSReader:
         Args:
             creation_date (datetime64): 创建日期
             creation_time (datetime64): 创建时间，即00\06\12\18之一
+            dataset (str): wis或camels
             aoi (GeoDataFrame): 已有的GeoPandas.GeoDataFrame对象
             time_chunks (int): 分块数量
 
@@ -995,4 +1035,6 @@ class GFSReader:
             0,
         )
 
-        return self.open_dataset(creation_date, creation_time, bbox, time_chunks)
+        ds = self.open_dataset(creation_date, creation_time, dataset, bbox, time_chunks)
+
+        return ds

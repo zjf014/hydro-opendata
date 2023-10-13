@@ -37,7 +37,6 @@ f = gfs.search(aoi=aoi)
     - 时间分辨率：逐小时、逐日、逐月
     - 时间范围：1950年至最近2-3月
     - 变量类型：包括地表面热辐射、温度、降雨、风、土壤、蒸发等[50个变量](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land?tab=overview)
-    - 目前已下载松辽流域2015年7月-2022年4月的全变量ERA5-Land数据
 
 ### The Global Forecast System
 - [GFS](https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php) -> gfs: 来自National Centers for Environmental Prediction (NCEP)的全球气象预测数据
@@ -46,7 +45,6 @@ f = gfs.search(aoi=aoi)
     - 时间分辨率：每天发布4次数据，分别于0点、6点、12点和18点发布；每次发布未来0-384小时的预测数据，其中，前5天为逐小时，6-16天小时为每3小时间隔
     - 时间范围：NCEP官网为近10天完整数据，Google Earth Engine(GEE)有2015年7月1日至今的数据，不过从2016年7月10日后是完整时间序列的
     - 变量类型：完整数据包括地表至平流层各层的气象数据[变量](https://www.nco.ncep.noaa.gov/pmb/products/gfs/gfs.t00z.pgrb2.0p25.f003.shtml)，由于变量较多，GEE选择了其中的[9个](https://blog.csdn.net/qq_31988139/article/details/120589149)
-    - 目前已下载松辽流域2016年7月至今的9个变量GFS气象预测数据，每组预测序列为0-120小时
 
 ### Global Precipitation Measurement
 - [GPM](https://www.nasa.gov/mission_pages/GPM/main/index.html) -> gpm: 来自NASA和JAXA的全球降水测量计划
@@ -55,4 +53,3 @@ f = gfs.search(aoi=aoi)
     - 时间分辨率：0.5h、逐日、逐月
     - 时间范围：2000年6月以来
     - 变量类型：GPM IMERG是综合反演产品，包括Early，Late和Final Run，这三者的区别在于发布时间。Early Run表示获得观测数据后6h发布，Late和Final Run分别在18小时以及4个月后发布。Early和Late Run的IMERG产品主要是几乎实时的观测，并且用气候站进行检验校准。Final Run则是利用全球降水气候中心的月平均站点资料进行误差订正。
-    - 目前已下载松辽流域2015年7月至今GFS气象预测数据

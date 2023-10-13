@@ -26,10 +26,7 @@ class ERA5LCatalog:
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
         temporal_resolution (str): 时间分辨率
-
-        start_time (str): minio服务器中数据起始时间
-        end_time (str): minio服务器中数据结束时间
-        bbox (str): minio服务器中数据空间范围
+        datasets (dict): minio服务器中的已有数据集
 
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
@@ -42,10 +39,20 @@ class ERA5LCatalog:
         self._spatialresolution = "0.1 x 0.1; Native resolution is 9 km."
         self._temporalresolution = "hourly"
 
-        # with fs.open('test/geodata/era5_land.json/')
-        self._starttime = np.datetime64("2015-07-01T00:00:00")
-        self._endtime = np.datetime64("2021-12-31T23:00:00")
-        self._bbox = (115, 38, 136, 54)
+        self._datasets = self._get_datasets()
+
+    def _get_datasets(self):
+        dss = {}
+
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "geodata/era5_land/era5l.json")) as f:
+            era5 = json.load(f)
+            ds["start_time"] = np.datetime64(era5["start"])
+            ds["end_time"] = np.datetime64(era5["end"])
+            ds["bbox"] = era5["bbox"]
+        dss["wis"] = ds
+
+        return dss
 
     @property
     def collection_id(self):
@@ -68,16 +75,8 @@ class ERA5LCatalog:
         return self._temporalresolution
 
     @property
-    def start_time(self):
-        return self._starttime
-
-    @property
-    def end_time(self):
-        return self._endtime
-
-    @property
-    def bbox(self):
-        return self._bbox
+    def datasets(self):
+        return self._datasets
 
     def search(self, aoi, start_time=None, end_time=None):
         """
@@ -92,34 +91,40 @@ class ERA5LCatalog:
             datalist (GeoDataFrame): 符合条件的数据清单
         """
 
-        if start_time is None:
-            start_time = self._starttime
-        if end_time is None:
-            end_time = self._endtime
+        clips = []
 
-        if start_time < end_time:
-            if start_time < self._starttime:
-                start_time = self._starttime
-            if end_time > self._endtime:
-                end_time = self._endtime
+        for key, value in self._datasets.items():
+            start = start_time
+            end = end_time
+            if start_time is None:
+                start = value["start_time"]
+            if end_time is None:
+                end = value["end_time"]
 
-            df = pd.DataFrame(
-                {
-                    "id": [self._collection_id],
-                    "start_time": [start_time],
-                    "end_time": [end_time],
-                    "geometry": ["POLYGON((115 54,115 38,136 38,136 54,115 54))"],
-                }
-            )
-            df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
-            gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
+            if start < value["start_time"]:
+                start = value["start_time"]
+            if end > value["end_time"]:
+                end = value["end_time"]
 
-            clip = gdf.clip(aoi)
+            if start <= end:
+                df = pd.DataFrame(
+                    {
+                        "id": [self._collection_id],
+                        "dataset": [key],
+                        "start_time": [str(start)],
+                        "end_time": [str(end)],
+                        "geometry": [
+                            f"POLYGON(({value['bbox'][0]} {value['bbox'][3]},{value['bbox'][0]} {value['bbox'][1]},\
+                                     {value['bbox'][2]} {value['bbox'][1]},{value['bbox'][2]} {value['bbox'][3]},{value['bbox'][0]} {value['bbox'][3]}))"
+                        ],
+                    }
+                )
+                df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
+                gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
 
-            return clip
+                clips.append(gdf.clip(aoi))
 
-        else:
-            return None
+        return pd.concat(clips)
 
 
 class GPMCatalog:
@@ -132,10 +137,7 @@ class GPMCatalog:
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
         temporal_resolution (str): 时间分辨率
-
-        start_time (str): minio服务器中数据起始时间
-        end_time (str): minio服务器中数据结束时间
-        bbox (str): minio服务器中数据空间范围
+        datasets (dict): minio服务器中的已有数据集
 
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
@@ -148,13 +150,53 @@ class GPMCatalog:
             "https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGHHE_06/summary"
         )
         self._spatialresolution = "0.1 x 0.1; Native resolution is 9 km. (60°S-60°N)"
-        self._temporalresolution = "half-hourly"
+        self._temporalresolution = "half-hourly; 1 day"
 
-        with fs.open(f"{bucket_name}/geodata/gpm/gpm.json") as f:
+        self._datasets = self._get_datasets()
+
+    def _get_datasets(self):
+        dss = {}
+        lds = []
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "geodata/gpm/gpm.json")) as f:
             gpm = json.load(f)
-            self._starttime = np.datetime64(gpm["start"])
-            self._endtime = np.datetime64(gpm["end"])
-            self._bbox = gpm["bbox"]
+            ds["time_resolution"] = "30 minutes"
+            ds["start_time"] = np.datetime64(gpm["start"])
+            ds["end_time"] = np.datetime64(gpm["end"])
+            ds["bbox"] = gpm["bbox"]
+        lds.append(ds)
+
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "geodata/gpm1d/gpm1d.json")) as f:
+            gpm = json.load(f)
+            ds["time_resolution"] = "1 day"
+            ds["start_time"] = np.datetime64(gpm["start"])
+            ds["end_time"] = np.datetime64(gpm["end"])
+            ds["bbox"] = gpm["bbox"]
+        lds.append(ds)
+        dss["wis"] = lds
+
+        lds = []
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "camdata/gpm/gpm.json")) as f:
+            gpm = json.load(f)
+            ds["time_resolution"] = "30 minutes"
+            ds["start_time"] = np.datetime64(gpm["start"])
+            ds["end_time"] = np.datetime64(gpm["end"])
+            ds["bbox"] = gpm["bbox"]
+        lds.append(ds)
+
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "camdata/gpm1d/gpm1d.json")) as f:
+            gpm = json.load(f)
+            ds["time_resolution"] = "1 day"
+            ds["start_time"] = np.datetime64(gpm["start"])
+            ds["end_time"] = np.datetime64(gpm["end"])
+            ds["bbox"] = gpm["bbox"]
+        lds.append(ds)
+        dss["camels"] = lds
+
+        return dss
 
     @property
     def collection_id(self):
@@ -177,16 +219,8 @@ class GPMCatalog:
         return self._temporalresolution
 
     @property
-    def start_time(self):
-        return self._starttime
-
-    @property
-    def end_time(self):
-        return self._endtime
-
-    @property
-    def bbox(self):
-        return self._bbox
+    def datasets(self):
+        return self._datasets
 
     def search(self, aoi, start_time=None, end_time=None):
         """
@@ -201,36 +235,42 @@ class GPMCatalog:
             datalist (GeoDataFrame): 符合条件的数据清单
         """
 
-        if start_time is None:
-            start_time = self._starttime
-        if end_time is None:
-            end_time = self._endtime
+        clips = []
 
-        if start_time < end_time:
-            if start_time < self._starttime:
-                start_time = self._starttime
-            if end_time > self._endtime:
-                end_time = self._endtime
+        for key, value in self._datasets.items():
+            for v in value:
+                start = start_time
+                end = end_time
+                if start_time is None:
+                    start = v["start_time"]
+                if end_time is None:
+                    end = v["end_time"]
 
-            df = pd.DataFrame(
-                {
-                    "id": [self._collection_id],
-                    "start_time": [start_time],
-                    "end_time": [end_time],
-                    "geometry": [
-                        f"POLYGON(({self._bbox[0]} {self._bbox[3]},{self._bbox[0]} {self._bbox[1]},{self._bbox[2]} {self._bbox[1]},{self._bbox[2]} {self._bbox[3]},{self._bbox[0]} {self._bbox[3]}))"
-                    ],
-                }
-            )
-            df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
-            gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
+                if start < v["start_time"]:
+                    start = v["start_time"]
+                if end > v["end_time"]:
+                    end = v["end_time"]
 
-            clip = gdf.clip(aoi)
+                if start <= end:
+                    df = pd.DataFrame(
+                        {
+                            "id": [self._collection_id],
+                            "dataset": [key],
+                            "time_resolution": v["time_resolution"],
+                            "start_time": [str(start)],
+                            "end_time": [str(end)],
+                            "geometry": [
+                                f"POLYGON(({v['bbox'][0]} {v['bbox'][3]},{v['bbox'][0]} {v['bbox'][1]},\
+                                         {v['bbox'][2]} {v['bbox'][1]},{v['bbox'][2]} {v['bbox'][3]},{v['bbox'][0]} {v['bbox'][3]}))"
+                            ],
+                        }
+                    )
+                    df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
+                    gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
 
-            return clip
+                    clips.append(gdf.clip(aoi))
 
-        else:
-            return None
+        return pd.concat(clips)
 
 
 class GFSCatalog:
@@ -243,9 +283,7 @@ class GFSCatalog:
         description (str): 数据源链接
         spatial_resolution (str): 空间分辨率
         temporal_resolution (str): 时间分辨率
-
-        start_time (str): minio服务器中数据起始时间
-        end_time (str): minio服务器中数据结束时间
+        datasets (dict): minio服务器中的已有数据集
 
     Method:
         search(aoi, start_time, end_time): 搜索minio服务器中的数据范围
@@ -261,11 +299,17 @@ class GFSCatalog:
         self._spatialresolution = "0.25 x 0.25"
         self._temporalresolution = "hourly; 1-120h"
 
-        with fs.open(f"{bucket_name}/geodata/gfs/gfs.json") as f:
+        self._datasets = self._get_datasets()
+
+    def _get_datasets(self):
+        dss = {}
+
+        ds = {}
+        with fs.open(os.path.join(bucket_name, "geodata/gfs/gfs.json")) as f:
             gfs = json.load(f)
-            self._starttime = np.datetime64(gfs[variable][0]["start"])
-            self._endtime = np.datetime64(gfs[variable][-1]["end"])
-            # self.bbox = gpm['bbox']
+        dss["wis"] = gfs[self._variable]
+
+        return dss
 
     @property
     def variable(self):
@@ -292,12 +336,8 @@ class GFSCatalog:
         return self._temporalresolution
 
     @property
-    def start_time(self):
-        return self._starttime
-
-    @property
-    def end_time(self):
-        return self._endtime
+    def datasets(self):
+        return self._datasets
 
     def search(self, aoi, start_time=None, end_time=None):
         """
@@ -312,47 +352,38 @@ class GFSCatalog:
             datalist (GeoDataFrame): 符合条件的数据清单
         """
 
-        if start_time is None:
-            start_time = self._starttime
-        if end_time is None:
-            end_time = self._endtime
+        clips = []
 
-        if start_time < end_time:
-            stime = []
-            etime = []
-            bbox = []
-            ids = []
+        for key, value in self._datasets.items():
+            for v in value:
+                start = start_time
+                end = end_time
+                if start_time is None:
+                    start = np.datetime64(v["start"])
+                if end_time is None:
+                    end = np.datetime64(v["end"])
 
-            with fs.open(f"{bucket_name}/geodata/gfs/gfs.json") as f:
-                cont = json.load(f)
-                clist = cont[self._variable]
+                if start < np.datetime64(v["start"]):
+                    start = np.datetime64(v["start"])
 
-            for c in clist:
-                if start_time < np.datetime64(c["start"]):
-                    stime.append(np.datetime64(c["start"]))
-                else:
-                    stime.append(start_time)
+                if end > np.datetime64(v["end"]):
+                    end = np.datetime64(v["end"])
 
-                if end_time > np.datetime64(c["end"]):
-                    etime.append(np.datetime64(c["end"]))
-                else:
-                    etime.append(end_time)
+                if start <= end:
+                    df = pd.DataFrame(
+                        {
+                            "id": [self._collection_id],
+                            "dataset": [key],
+                            "start_time": [str(start)],
+                            "end_time": [str(end)],
+                            "geometry": [
+                                f"POLYGON(({v['bbox'][0]} {v['bbox'][3]},{v['bbox'][0]} {v['bbox'][1]},{v['bbox'][2]} {v['bbox'][1]},{v['bbox'][2]} {v['bbox'][3]},{v['bbox'][0]} {v['bbox'][3]}))"
+                            ],
+                        }
+                    )
+                    df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
+                    gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
 
-                bb = c["bbox"]
-                bbox.append(
-                    f"POLYGON(({bb[0]} {bb[3]},{bb[0]} {bb[1]},{bb[2]} {bb[1]},{bb[2]} {bb[3]},{bb[0]} {bb[3]}))"
-                )
-                ids.append(self._collection_id)
+                    clips.append(gdf.clip(aoi))
 
-            df = pd.DataFrame(
-                {"id": ids, "start_time": stime, "end_time": etime, "geometry": bbox}
-            )
-            df["geometry"] = gpd.GeoSeries.from_wkt(df["geometry"])
-            gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
-
-            clip = gdf.clip(aoi)
-
-            return clip
-
-        else:
-            return None
+        return pd.concat(clips)

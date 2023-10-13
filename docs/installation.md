@@ -1,21 +1,25 @@
-# Installation
+# 安装与配置
 
-## Stable release
+## 安装
 
-To install hydro-opendata, run this command in your terminal:
+在命令行运行：
 
-```
+```shell
 pip install hydro_opendata
 ```
 
-This is the preferred method to install wis-stac, as it will always install the most recent stable release.
+## 配置
 
-If you don't have [pip](https://pip.pypa.io) installed, this [Python installation guide](http://docs.python-guide.org/en/latest/starting/installation/) can guide you through the process.
+首次使用hydro_opendata时，如：
 
-## From sources
-
-To install hydro-opendata from sources, run this command in your terminal:
-
+```python
+from hydro_opendata.data.minio import GPM
 ```
-pip install git+https://github.com/zjf014/hydro-opendata
-```
+
+会提示输入`access_key`和`secret_key`。由于目前hydro_opendata部分功能仅限于团队内部使用，所以使用前需要向管理员申请[minio](http://minio.waterism.com:9090/)账号。
+
+1. 进入[minio网页客户端](http://minio.waterism.com:9090/)
+2. 点击左侧导航栏`Identity`进入`Service Accounts`
+3. 在右侧主界面点击`Create Service Accounts`
+
+![获取key](./images/account.png)

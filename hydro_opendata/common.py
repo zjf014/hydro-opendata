@@ -10,6 +10,7 @@ Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 import pathlib
 import os
 import s3fs
+from enum import Enum
 
 minio_paras = {
     "endpoint_url": "http://minio.waterism.com:9000",
