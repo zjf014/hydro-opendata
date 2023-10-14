@@ -12,6 +12,7 @@ dependencies:
   - eccodes
   - netCDF4
   - geopandas
+  - openpyxl>=3.0.10
   - requests
   - tqdm
   # for development
@@ -22,3 +23,7 @@ dependencies:
   - mkdocstrings-python
   - mkdocs-git-revision-date-plugin
   - mkdocs-jupyter
+  - pip
+  - pip: 
+    - wget 
+    - hydrodataset
