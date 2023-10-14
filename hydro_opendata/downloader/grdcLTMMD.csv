@@ -1,0 +1,7 @@
+WMO_Region,Coverage,Number_of_stations,Archive
+1,Africa,1551,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/africa.zip
+2,Asia,1918,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/asia.zip
+3,South America,735,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/samerica.zip
+4,North & Central America,2322,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/namerica.zip
+5,Australia & Pacific,553,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/pacific.zip
+6,Europe & Mediterranean Asia,2166,ftp://ftp.bafg.de/pub/REFERATE/GRDC/ltdata/europe.zip

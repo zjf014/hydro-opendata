@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.10
   - s3fs=2022.05
   - kerchunk
   - xarray
@@ -12,7 +13,7 @@ dependencies:
   - eccodes
   - netCDF4
   - geopandas
-  - openpyxl>=3.0.10
+  - openpyxl=3.1
   - requests
   - tqdm
   # for development

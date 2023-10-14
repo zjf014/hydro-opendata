@@ -1,9 +1,9 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-01-02 22:23:24
-LastEditTime: 2023-10-13 11:06:31
+LastEditTime: 2023-10-14 21:22:46
 LastEditors: Wenyu Ouyang
-Description: read the Global Runoff Data Centre (GRDC) data
+Description: read the Global Runoff Data Centre (GRDC) daily data
 FilePath: \hydro_opendata\hydro_opendata\s3api\grdc.py
 Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 """
@@ -15,6 +15,11 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple, Union
 from dateutil.parser import parse
 import pandas as pd
+import xarray as xr
+
+import hydrodataset as hds
+from hydro_opendata.downloader.hydrostation import catalogue_grdc
+from hydro_opendata.downloader import GRDC_DAILY_DATA_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -65,21 +70,22 @@ def to_absolute_path(
     return pathlike.expanduser().resolve(strict=must_exist)
 
 
-def get_grdc_data(
+def read_grdc_daily_data(
     station_id: str,
     start_time: str,
     end_time: str,
     parameter: str = "Q",
-    data_home: Optional[str] = None,
+    data_home: Optional[str] = GRDC_DAILY_DATA_DIR,
     column: str = "streamflow",
 ) -> Tuple[pd.core.frame.DataFrame, MetaDataType]:
-    """Get river discharge data from Global Runoff Data Centre (GRDC).
+    """read daily river discharge data from Global Runoff Data Centre (GRDC).
 
     Requires the GRDC daily data files in a local directory. The GRDC daily data
     files can be ordered at
     https://www.bafg.de/GRDC/EN/02_srvcs/21_tmsrs/riverdischarge_node.html
 
-    Args:
+    Parameters
+    ----------
         station_id: The station id to get. The station id can be found in the
             catalogues at
             https://www.bafg.de/GRDC/EN/02_srvcs/21_tmsrs/212_prjctlgs/project_catalogue_node.html
@@ -168,7 +174,7 @@ def get_grdc_data(
     # Add number of missing data to metadata
     metadata["nrMissingData"] = _count_missing_data(df, column)
 
-    # Shpw info about data
+    # Show info about data
     _log_metadata(metadata)
 
     return df, metadata
@@ -290,33 +296,33 @@ def _grdc_metadata_reader(grdc_station_path, all_lines):
             attribute_grdc["altitude_masl"] = "NA"
 
         try:
-            attribute_grdc["dataSetContent"] = str(all_lines[20].split(":")[1].strip())
+            attribute_grdc["dataSetContent"] = str(all_lines[21].split(":")[1].strip())
         except (IndexError, ValueError):
             attribute_grdc["dataSetContent"] = "NA"
 
         try:
-            attribute_grdc["units"] = str(all_lines[22].split(":")[1].strip())
+            attribute_grdc["units"] = str(all_lines[23].split(":")[1].strip())
         except (IndexError, ValueError):
             attribute_grdc["units"] = "NA"
 
         try:
-            attribute_grdc["time_series"] = str(all_lines[23].split(":")[1].strip())
+            attribute_grdc["time_series"] = str(all_lines[24].split(":")[1].strip())
         except (IndexError, ValueError):
             attribute_grdc["time_series"] = "NA"
 
         try:
-            attribute_grdc["no_of_years"] = int(all_lines[24].split(":")[1].strip())
+            attribute_grdc["no_of_years"] = int(all_lines[25].split(":")[1].strip())
         except (IndexError, ValueError):
             attribute_grdc["no_of_years"] = "NA"
 
         try:
-            attribute_grdc["last_update"] = str(all_lines[25].split(":")[1].strip())
+            attribute_grdc["last_update"] = str(all_lines[26].split(":")[1].strip())
         except (IndexError, ValueError):
             attribute_grdc["last_update"] = "NA"
 
         try:
             attribute_grdc["nrMeasurements"] = int(
-                str(all_lines[33].split(":")[1].strip())
+                str(all_lines[34].split(":")[1].strip())
             )
         except (IndexError, ValueError):
             attribute_grdc["nrMeasurements"] = "NA"
@@ -347,12 +353,103 @@ def _log_metadata(metadata):
     logger.info("%s", message)
 
 
-if __name__ == "__main__":
-    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    df, metadata = get_grdc_data(
-        station_id="2181200",
-        start_time="1980-01-01T00:00Z",
-        end_time="2001-01-01T00:00Z",
-        data_home=Path(ROOT_DIR, "grdc"),
-    )
-    df.to_csv(Path(ROOT_DIR, "grdc", "2181200.csv"))
+def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
+    """
+    Parameters
+    ----------
+    start_date : _type_
+        a startDate provided in YYYY-MM-DD
+    end_date : _type_
+        a endDate provided in YYYY-MM-DD
+    """
+    if nc_dir is None:
+        nc_dir = GRDC_DAILY_DATA_DIR
+    nc_file = os.path.join(nc_dir, "grdc_daily_data.nc")
+    if os.path.exists(nc_file):
+        return
+
+    catalogue = catalogue_grdc(hds.CACHE_DIR)
+    # Create empty lists to store data and metadata
+    data_list = []
+    meta_list = []
+
+    if station_ids is None:
+        # Filter the catalogue based on the provided station IDs
+        filenames = os.listdir(GRDC_DAILY_DATA_DIR)
+        # Extract station IDs from filenames that match the pattern
+        station_ids = [
+            int(fname.split("_")[0])
+            for fname in filenames
+            if fname.endswith("_Q_Day.Cmd.txt")
+        ]
+    catalogue = catalogue[catalogue["grdc_no"].isin(station_ids)]
+
+    # Loop over each station in the catalogue
+    for station_id in catalogue["grdc_no"]:
+        try:
+            st = datetime.datetime.strptime(start_date, "%Y-%m-%d").strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+            et = datetime.datetime.strptime(end_date, "%Y-%m-%d").strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+            df, meta = read_grdc_daily_data(str(station_id), st, et)
+        except Exception as e:
+            print(f"Error reading data for station {station_id}: {e}")
+            # Create an empty DataFrame with the same structure
+            df = pd.DataFrame(
+                columns=["streamflow"],
+                index=pd.date_range(start=start_date, end=end_date),
+            )
+            df["streamflow"] = float("nan")
+            meta = {
+                "grdc_file_name": "",
+                "id_from_grdc": station_id,
+                "river_name": "",
+                "station_name": "",
+                "country_code": "",
+                "grdc_latitude_in_arc_degree": float("nan"),
+                "grdc_longitude_in_arc_degree": float("nan"),
+                "grdc_catchment_area_in_km2": float("nan"),
+                "altitude_masl": float("nan"),
+                "dataSetContent": "",
+                "units": "m³/s",
+                "time_series": "",
+                "no_of_years": 0,
+                "last_update": "",
+                "nrMeasurements": "NA",
+                "UserStartTime": start_date,
+                "UserEndTime": end_date,
+                "nrMissingData": 0,
+            }
+
+        # Convert the DataFrame to an xarray DataArray and append to the list
+        # da = xr.DataArray(
+        #     df["streamflow"].values,
+        #     coords=[df.index, [station_id]],
+        #     dims=["time", "station"],
+        # )
+        coords_dict = {"time": df.index, "station": [station_id]}
+        da = xr.DataArray(
+            data=df["streamflow"].values.reshape(-1, 1),
+            coords=coords_dict,
+            dims=["time", "station"],
+            name="streamflow",
+            attrs={"units": meta.get("units", "unknown")},
+        )
+        data_list.append(da)
+
+        # Append metadata
+        meta_list.append(meta)
+
+    # Concatenate all DataArrays along the 'station' dimension
+    ds = xr.concat(data_list, dim="station")
+
+    # Assign attributes
+    ds.attrs["description"] = "Daily river discharge"
+    ds.station.attrs["description"] = "GRDC station number"
+
+    # Write the xarray Dataset to a NetCDF file
+    ds.to_netcdf(nc_file)
+
+    print("NetCDF file created successfully!")

@@ -176,20 +176,24 @@ def download_sigletasking(url: str, file_name: str):
         # 文件大小，以 B 为单位
         file_size = head.headers.get("Content-Length")
         if file_size is not None:
-            file_size = int(file_size)
-            response = requests.get(url, headers=headers, stream=True)
-            # 一块文件的大小
-            # chunk_size = 1024
-            chunk_size = int(file_size / 100) + 1
-            bar = tqdm(total=file_size, desc=f"下载文件 {file_name}")
-            with open(file_name, mode="wb") as f:
-                # 写入分块文件
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    f.write(chunk)
-                    bar.update(chunk_size)
-            # 关闭进度条
-            bar.close()
+            download_single_task_with_chunks(file_size, url, headers, file_name)
         else:
             # 未获取到文件大小，采用stream方法下载
             # download_from_url(url,file_name)
             download_by_stream(url, file_name)
+
+
+def download_single_task_with_chunks(file_size, url, headers, file_name):
+    file_size = int(file_size)
+    response = requests.get(url, headers=headers, stream=True)
+    # 一块文件的大小
+    # chunk_size = 1024
+    chunk_size = file_size // 100 + 1
+    bar = tqdm(total=file_size, desc=f"下载文件 {file_name}")
+    with open(file_name, mode="wb") as f:
+        # 写入分块文件
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            f.write(chunk)
+            bar.update(chunk_size)
+    # 关闭进度条
+    bar.close()
