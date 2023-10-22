@@ -7,5 +7,8 @@ cfgrib
 eccodes
 netCDF4
 geopandas
+openpyxl>=3.0.10
 requests
 tqdm
+wget
+hydrodataset
