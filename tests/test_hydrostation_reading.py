@@ -1,7 +1,7 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-10-13 20:37:36
-LastEditTime: 2023-10-14 21:22:52
+LastEditTime: 2023-10-22 16:51:12
 LastEditors: Wenyu Ouyang
 Description: Test reading GRDC data
 FilePath: \hydro_opendata\tests\test_hydrostation_reading.py
@@ -11,7 +11,7 @@ import os
 import xarray as xr
 from downloader import GRDC_DAILY_DATA_DIR
 
-from s3api.grdc import read_grdc_daily_data, dailygrdc2netcdf
+from reader.grdc import read_grdc_daily_data, dailygrdc2netcdf
 
 
 def test_read_grdc():
