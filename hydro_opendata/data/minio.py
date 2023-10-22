@@ -1,5 +1,5 @@
-from ..stac.minio import ERA5LCatalog, GPMCatalog, GFSCatalog
-from ..s3api.minio import ERA5LReader, GPMReader, GFSReader
+from ..catalog.minio import ERA5LCatalog, GPMCatalog, GFSCatalog
+from ..reader.minio import ERA5LReader, GPMReader, GFSReader
 
 
 class Era5L:

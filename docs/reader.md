@@ -1,4 +1,4 @@
-# S3api模块
+# Reader模块
 
 读取数据。
 
@@ -13,7 +13,7 @@
 - 读取era5数据
 
 ```python
-from hydro_opendata.s3api.minio import ERA5LReader
+from hydro_opendata.reader.minio import ERA5LReader
 import numpy as np
 
 era5 = ERA5LReader()
@@ -38,7 +38,7 @@ ds3 = era5.from_aoi(data_variables=['Total precipitation'], start_time=start_tim
 - 读取gpm数据
 
 ```python
-from hydro_opendata.s3api.minio import GPMReader
+from hydro_opendata.reader.minio import GPMReader
 import numpy as np
 
 # 指定数据集wis或camels
@@ -64,7 +64,7 @@ ds3 = gpm.from_aoi(start_time=start_time, end_time=end_time, dataset='wis', aoi=
 - 读取gpm数据
 
 ```python
-from hydro_opendata.s3api import GFSReader
+from hydro_opendata.reader.minio import GFSReader
 import numpy as np
 
 gpm = GPMReader()
