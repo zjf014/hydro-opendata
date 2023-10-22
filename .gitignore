@@ -104,3 +104,4 @@ ENV/
 
 # IDE settings
 .vscode/
+tests/test.py

@@ -1,4 +1,4 @@
-# Stac模块
+# Catalog模块
 
 数据清单及其元数据，根据AOI返回数据列表。
 
@@ -12,7 +12,7 @@
 
 - 通过给定aoi获取可用数据列表
 ```python
-from hydro_opendata.stac.minio import ERA5LCatalog, GPMCatalog, GFSCatalog
+from hydro_opendata.catalog.minio import ERA5LCatalog, GPMCatalog, GFSCatalog
 
 era5 = ERA5LCatalog()
 e = era5.search(aoi=aoi)

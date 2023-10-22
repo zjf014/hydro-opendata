@@ -12,8 +12,8 @@ nav:
     - Modules:
         - Downloader: downloader.md
         - Processor: processor.md
-        - Stac: stac.md
-        - S3api: s3api.md
+        - Catalog: catalog.md
+        - Reader: reader.md
         - GISTools: gistools.md
     # - Contributing: contributing.md
     - FAQ: faq.md
@@ -21,8 +21,8 @@ nav:
     - Report Issues: https://github.com/zjf014/hydro-opendata/issues
     - Examples:
         - modules/downloader.ipynb
-        - modules/stac.ipynb
-        - modules/s3api.ipynb
+        - modules/catalog.ipynb
+        - modules/reader.ipynb
         - modules/minio.ipynb
     - API Reference:
         - Downloader module: 
