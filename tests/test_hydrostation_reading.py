@@ -1,17 +1,21 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-10-13 20:37:36
-LastEditTime: 2023-10-22 16:51:12
+LastEditTime: 2023-10-30 18:17:13
 LastEditors: Wenyu Ouyang
 Description: Test reading GRDC data
 FilePath: \hydro_opendata\tests\test_hydrostation_reading.py
 Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 """
 import os
+import numpy as np
 import xarray as xr
-from downloader import GRDC_DAILY_DATA_DIR
-
-from reader.grdc import read_grdc_daily_data, dailygrdc2netcdf
+from hydro_opendata.downloader import GRDC_DAILY_DATA_DIR
+from hydro_opendata.reader.grdc import (
+    read_grdc_daily_data,
+    dailygrdc2netcdf,
+    read_grdc_nc_ts,
+)
 
 
 def test_read_grdc():
@@ -21,7 +25,13 @@ def test_read_grdc():
         start_time="1980-01-01T00:00Z",
         end_time="2001-01-01T00:00Z",
     )
-    assert df.shape == (7305, 1)
+    assert df.shape == (7672, 1)
+    grdc = read_grdc_nc_ts(
+        station_id="2181200",
+        start_time="1980-01-01",
+        end_time="2001-01-01",
+    )
+    np.testing.assert_array_equal(df.values.flatten(), grdc["streamflow"].values)
 
 
 def test_dailygrdc2netcdf():

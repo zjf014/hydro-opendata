@@ -1,14 +1,15 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-01-02 22:23:24
-LastEditTime: 2023-10-14 21:22:46
+LastEditTime: 2023-10-30 18:14:20
 LastEditors: Wenyu Ouyang
 Description: read the Global Runoff Data Centre (GRDC) daily data
-FilePath: \hydro_opendata\hydro_opendata\s3api\grdc.py
+FilePath: \hydro_opendata\hydro_opendata\reader\grdc.py
 Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 """
 # Global Runoff Data Centre module from ewatercycle: https://github.com/eWaterCycle/ewatercycle/blob/main/src/ewatercycle/observation/grdc.py
 import datetime
+from genericpath import isfile
 import logging
 import os
 from pathlib import Path
@@ -206,10 +207,17 @@ def _grdc_read(grdc_station_path, start, end, column):
     )
     grdc_station_df.index.rename("time", inplace=True)
 
-    # Select GRDC station data that matches the forecast results Date
-    grdc_station_select = grdc_station_df.loc[start:end]
+    # Create a continuous date range based on the given start and end dates
+    full_date_range = pd.date_range(start=start, end=end)
+    full_df = pd.DataFrame(index=full_date_range)
+    full_df.index.rename("time", inplace=True)
 
-    return metadata, grdc_station_select
+    # Merge the two dataframes, so the dates without data will have NaN values
+    merged_df = full_df.merge(
+        grdc_station_df, left_index=True, right_index=True, how="left"
+    )
+
+    return metadata, merged_df
 
 
 def _grdc_metadata_reader(grdc_station_path, all_lines):
@@ -453,3 +461,14 @@ def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
     ds.to_netcdf(nc_file)
 
     print("NetCDF file created successfully!")
+
+
+def read_grdc_nc_ts(station_id, start_time, end_time):
+    """Read the GRDC daily data from the NetCDF file."""
+    # Load the NetCDF file into an xarray Dataset
+    nc_file = os.path.join(GRDC_DAILY_DATA_DIR, "grdc_daily_data.nc")
+    if not os.path.isfile(nc_file):
+        dailygrdc2netcdf(start_time, end_time)
+    ds = xr.open_dataset(nc_file)
+    # choose data for given basin
+    return ds.sel(station=int(station_id)).sel(time=slice(start_time, end_time))
