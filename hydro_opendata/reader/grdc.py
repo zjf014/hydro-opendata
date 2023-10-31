@@ -1,7 +1,7 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-01-02 22:23:24
-LastEditTime: 2023-10-30 18:14:20
+LastEditTime: 2023-10-31 11:27:38
 LastEditors: Wenyu Ouyang
 Description: read the Global Runoff Data Centre (GRDC) daily data
 FilePath: \hydro_opendata\hydro_opendata\reader\grdc.py
@@ -9,7 +9,6 @@ Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 """
 # Global Runoff Data Centre module from ewatercycle: https://github.com/eWaterCycle/ewatercycle/blob/main/src/ewatercycle/observation/grdc.py
 import datetime
-from genericpath import isfile
 import logging
 import os
 from pathlib import Path
@@ -18,9 +17,7 @@ from dateutil.parser import parse
 import pandas as pd
 import xarray as xr
 
-import hydrodataset as hds
 from hydro_opendata.downloader.hydrostation import catalogue_grdc
-from hydro_opendata.downloader import GRDC_DAILY_DATA_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +72,8 @@ def read_grdc_daily_data(
     station_id: str,
     start_time: str,
     end_time: str,
+    data_home: Optional[str],
     parameter: str = "Q",
-    data_home: Optional[str] = GRDC_DAILY_DATA_DIR,
     column: str = "streamflow",
 ) -> Tuple[pd.core.frame.DataFrame, MetaDataType]:
     """read daily river discharge data from Global Runoff Data Centre (GRDC).
@@ -361,7 +358,7 @@ def _log_metadata(metadata):
     logger.info("%s", message)
 
 
-def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
+def dailygrdc2netcdf(start_date, end_date, data_dir=None, station_ids=None):
     """
     Parameters
     ----------
@@ -370,20 +367,18 @@ def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
     end_date : _type_
         a endDate provided in YYYY-MM-DD
     """
-    if nc_dir is None:
-        nc_dir = GRDC_DAILY_DATA_DIR
-    nc_file = os.path.join(nc_dir, "grdc_daily_data.nc")
+    nc_file = os.path.join(data_dir, "grdc_daily_data.nc")
     if os.path.exists(nc_file):
         return
 
-    catalogue = catalogue_grdc(hds.CACHE_DIR)
+    catalogue = catalogue_grdc(data_dir)
     # Create empty lists to store data and metadata
     data_list = []
     meta_list = []
 
     if station_ids is None:
         # Filter the catalogue based on the provided station IDs
-        filenames = os.listdir(GRDC_DAILY_DATA_DIR)
+        filenames = os.listdir(data_dir)
         # Extract station IDs from filenames that match the pattern
         station_ids = [
             int(fname.split("_")[0])
@@ -401,7 +396,7 @@ def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
             et = datetime.datetime.strptime(end_date, "%Y-%m-%d").strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             )
-            df, meta = read_grdc_daily_data(str(station_id), st, et)
+            df, meta = read_grdc_daily_data(str(station_id), st, et, data_dir)
         except Exception as e:
             print(f"Error reading data for station {station_id}: {e}")
             # Create an empty DataFrame with the same structure
@@ -463,12 +458,16 @@ def dailygrdc2netcdf(start_date, end_date, nc_dir=None, station_ids=None):
     print("NetCDF file created successfully!")
 
 
-def read_grdc_nc_ts(station_id, start_time, end_time):
-    """Read the GRDC daily data from the NetCDF file."""
-    # Load the NetCDF file into an xarray Dataset
-    nc_file = os.path.join(GRDC_DAILY_DATA_DIR, "grdc_daily_data.nc")
-    if not os.path.isfile(nc_file):
-        dailygrdc2netcdf(start_time, end_time)
-    ds = xr.open_dataset(nc_file)
-    # choose data for given basin
-    return ds.sel(station=int(station_id)).sel(time=slice(start_time, end_time))
+class GRDCDataHandler:
+    def handle(self, configuration):
+        aoi_param = configuration["aoi"].aoi_param
+        start_time = aoi_param["start_time"]
+        end_time = aoi_param["end_time"]
+        station_id = aoi_param["station_id"]
+        # Based on configuration, read and handle GRDC data specifically
+        nc_file = configuration["path"]
+        if not os.path.isfile(nc_file):
+            dailygrdc2netcdf(start_time, end_time, data_dir=os.path.dirname(nc_file))
+        ds = xr.open_dataset(nc_file)
+        # choose data for given basin
+        return ds.sel(station=int(station_id)).sel(time=slice(start_time, end_time))

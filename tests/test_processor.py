@@ -1,13 +1,15 @@
+"""
+Author: Wenyu Ouyang
+Date: 2023-10-28 08:28:37
+LastEditTime: 2023-10-31 09:45:31
+LastEditors: Wenyu Ouyang
+Description: Test funcs for processor
+FilePath: \hydro_opendata\tests\test_processor.py
+Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
+"""
 import os
 import geopandas as gpd
-import pytest
-from common import minio_cfg
 from hydro_opendata.processor.minio import GeoProcessor, geojson_to_shp
-
-
-@pytest.fixture()
-def minio_paras():
-    return minio_cfg(bucket_name="test-private-data")
 
 
 def test_geojson_to_shp(tmp_path):

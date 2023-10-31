@@ -1,7 +1,7 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-10-14 11:51:22
-LastEditTime: 2023-10-29 20:15:05
+LastEditTime: 2023-10-31 11:41:41
 LastEditors: Wenyu Ouyang
 Description: Reading streamflow/water level data from hydrostation data source
 FilePath: \hydro_opendata\hydro_opendata\downloader\hydrostation.py
@@ -16,7 +16,6 @@ import pytz
 import requests
 from dataretrieval import nwis
 from pygeohydro import NWIS
-from hydro_opendata.downloader import GRDC_DAILY_DATA_DIR
 from hydro_opendata.downloader.downloader import (
     download_ftp_file,
     unzip_file,
@@ -133,8 +132,8 @@ def download_grdc_month_data(id, save_dir):
     return tables
 
 
-def download_grdc_daily_data(station_id):
-    file_path = os.path.join(GRDC_DAILY_DATA_DIR, f"{station_id}_Q_Day.Cmd.txt")
+def download_grdc_daily_data(station_id, data_dir):
+    file_path = os.path.join(data_dir, f"{station_id}_Q_Day.Cmd.txt")
     if not os.path.exists(file_path):
         message = (
             "For GRDC stations, easily use table-view to see; "
