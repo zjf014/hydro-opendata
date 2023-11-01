@@ -1,7 +1,7 @@
 """
 Author: Wenyu Ouyang
 Date: 2023-10-13 20:50:01
-LastEditTime: 2023-10-14 19:18:30
+LastEditTime: 2023-10-31 11:40:59
 LastEditors: Wenyu Ouyang
 Description: Test downloading function
 FilePath: \hydro_opendata\tests\test_downloader.py
@@ -9,12 +9,14 @@ Copyright (c) 2023-2024 Wenyu Ouyang. All rights reserved.
 """
 import os
 import pandas as pd
-from downloader.hydrostation import (
+
+import hydrodataset as hds
+from hydro_opendata.downloader.hydrostation import (
     catalogue_grdc,
     download_grdc_month_data,
     download_grdc_daily_data,
+    download_nwis_daily_flow,
 )
-import hydrodataset as hds
 
 
 def test_catalogue_grdc():
@@ -55,7 +57,18 @@ def test_download_grdc_ts(id="2181200"):
     assert all(isinstance(table, str) for table in data.values())
 
 
-def test_download_grdc_daily_data():
+def test_download_grdc_daily_data(tmp_path):
     station_id = "12345"
-    file_path = download_grdc_daily_data(station_id)
+    file_path = download_grdc_daily_data(tmp_path, station_id)
     assert os.path.exists(file_path) == False
+
+
+def test_download_usgs_streamflow():
+    camels = hds.Camels()
+    sites_id = camels.read_object_ids().tolist()
+    date_range = ("2020-10-01", "2021-10-01")
+    gage_dict = camels.camels_sites
+    save_dir = os.path.join("test_data", "camels_streamflow_2021")
+    unit = "cfs"
+    qobs = download_nwis_daily_flow(sites_id, date_range, gage_dict, save_dir, unit)
+    print(qobs)

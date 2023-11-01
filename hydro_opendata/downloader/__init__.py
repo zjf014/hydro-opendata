@@ -11,7 +11,3 @@ Copyright (c) 2023-2024 Jeff Zhu. All rights reserved.
 __author__ = """Jeff Zhu"""
 __email__ = "zjf014@gmail.com"
 __version__ = "0.0.1"
-
-import hydrodataset as hds
-
-GRDC_DAILY_DATA_DIR = hds.CACHE_DIR.joinpath("grdc_daily_data")
