@@ -28,12 +28,10 @@ nav:
         - Downloader module: 
             - Downloader: api/downloader.md
             - DEM: api/dem.md
-        - Stac module:
-            - minio: api/minio.md
-        - S3api module:
-            - era5: api/era5.md
-            - gpm: api/gpm.md
-            - gfs: api/gfs.md
+        - Catalog module:
+            - minio: api/catalog_minio.md
+        - Reader module:
+            - minio: api/reader_minio.md
     - Resources:
           - hydroGIS: hydrogis.md
 
