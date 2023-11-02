@@ -1,6 +1,6 @@
 minio
-boto3
-s3fs==2022.05
+boto3<=1.28.64
+s3fs>=2023.10
 kerchunk
 xarray
 zarr

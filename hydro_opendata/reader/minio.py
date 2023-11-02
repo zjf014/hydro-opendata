@@ -157,9 +157,9 @@ class ERA5LReader:
                 "storage_options": {
                     # no matter you run code in windows or linux, the bucket's format should be Linux style
                     # so we don't use os.join.path
-                    "fo": fs.open(
-                        f"s3://{bucket_name}/{self._dataset}/era5_land/era5_land_.json"
-                    ),
+                    "fo": f"s3://{bucket_name}/{self._dataset}/era5_land/era5_land_.json",
+                    "target_protocol": "s3",
+                    "target_options": ro,
                     "remote_protocol": "s3",
                     "remote_options": ro,
                 },
@@ -459,7 +459,9 @@ class GPMReader:
             backend_kwargs={
                 "consolidated": False,
                 "storage_options": {
-                    "fo": fs.open(minio_path),
+                    "fo": minio_path,
+                    "target_protocol": "s3",
+                    "target_options": ro,
                     "remote_protocol": "s3",
                     "remote_options": ro,
                 },
@@ -485,7 +487,7 @@ class GPMReader:
 
         longitudes = slice(left - 0.00001, right + 0.00001)
         latitudes = slice(bottom - 0.00001, top + 0.00001)
-
+        
         ds = ds.sortby("lat", ascending=True)
         ds = ds.sel(lon=longitudes, lat=latitudes)
 
@@ -928,7 +930,9 @@ class GFSReader:
             backend_kwargs={
                 "consolidated": False,
                 "storage_options": {
-                    "fo": fs.open(json_url),
+                    "fo": json_url,
+                    "target_protocol": "s3",
+                    "target_options": ro,
                     "remote_protocol": "s3",
                     "remote_options": ro,
                 },
@@ -937,13 +941,15 @@ class GFSReader:
 
         if creation_date < change:
             ds = ds[full_name]
+            box = self._paras[short_name][0]["bbox"]
+        else:
+            box = self.paras[short_name][-1]["bbox"]
 
         # ds = ds.filter_by_attrs(long_name=lambda v: v in data_variables)
         ds = ds.rename({"longitude": "lon", "latitude": "lat"})
         # ds = ds.transpose('time','valid_time','lon','lat')
 
         bbox = regen_box(bbox, 0.25, 0)
-        box = (115, 38, 136, 54)
 
         if bbox[0] < box[0]:
             left = box[0]
