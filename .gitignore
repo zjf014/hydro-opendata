@@ -105,3 +105,4 @@ ENV/
 # IDE settings
 .vscode/
 tests/test.py
+tests/test.ipynb

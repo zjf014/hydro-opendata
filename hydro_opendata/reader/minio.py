@@ -160,8 +160,8 @@ class ERA5LReader:
                     "fo": f"s3://{bucket_name}/{self._dataset}/era5_land/era5_land_.json",
                     "target_protocol": "s3",
                     "target_options": ro,
-                    "remote_protocol": "s3",
-                    "remote_options": ro,
+                    "remote_protocol": "file",
+                    # "remote_options": ro,
                 },
             },
         )
@@ -242,7 +242,7 @@ class ERA5LReader:
         )
 
         return self.open_dataset(
-            data_variables, start_time, end_time, bbox, time_chunks
+            data_variables, start_time, end_time, dataset, bbox, time_chunks
         )
 
     def from_aoi(
